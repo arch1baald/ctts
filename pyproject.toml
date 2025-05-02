@@ -23,3 +23,6 @@ build-backend = "hatchling.build"
 dev = [
     "jupyterlab>=4.4.1",
 ]
+
+[tool.ruff]
+line-length = 120
