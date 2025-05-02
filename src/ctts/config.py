@@ -10,9 +10,7 @@ class OpenAISettings(BaseModel):
     """Settings for OpenAI API."""
 
     api_key: str = Field(..., description="OpenAI API key")
-    organization_id: str | None = Field(
-        None, description="OpenAI organization ID"
-    )
+    organization_id: str | None = Field(None, description="OpenAI organization ID")
 
 
 class Settings(BaseSettings):

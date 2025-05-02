@@ -1,0 +1,4 @@
+[flake8]
+max-line-length = 120
+suppress-none-returning = True
+ignore = ANN101,ANN401,ANN202,W504

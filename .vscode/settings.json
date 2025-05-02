@@ -1,0 +1,8 @@
+{
+    "mypy.dmypyExecutable": ".venv/bin/dmypy",
+    "mypy.enabled": true,
+    "mypy.configFile": ".mypy.ini",
+    "mypy.targets": [
+        "src/",
+    ],
+}
