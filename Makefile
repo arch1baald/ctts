@@ -31,7 +31,6 @@ install-dev:
 # Clean cache and artifacts
 clean:
 	rm -rf .ruff_cache
-	rm -rf .mypy_cache
 	rm -rf __pycache__
 	rm -rf $(SRC_DIR)/**/__pycache__
 	find . -type d -name "__pycache__" -exec rm -rf {} +
@@ -44,4 +43,4 @@ help:
 	@echo "  make test             - Run tests"
 	@echo "  make install          - Install the package"
 	@echo "  make install-dev      - Install the package in development mode"
-	@echo "  make clean            - Remove cache and temporary files" 
+	@echo "  make clean            - Remove cache and temporary files"
