@@ -1,8 +1,8 @@
 {
     "recommendations": [
-        "matangover.mypy",
         "ms-python.python",
         "ms-python.vscode-pylance",
-        "ms-python.flake8"
+        "anysphere.pyright",
+        "charliermarsh.ruff",
     ]
 }

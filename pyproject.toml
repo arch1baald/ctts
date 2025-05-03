@@ -27,6 +27,26 @@ dev = [
 
 [tool.ruff]
 line-length = 120
+target-version = "py311"
+exclude = ["venv*", ".venv*", ".git", "adhoc"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "ANN"]
+ignore = [
+    "ANN204",  # Missing return type annotation for special method `__*__`
+    "ANN401",  # Dynamically typed expressions (Any) are disallowed
+]
+
+[tool.ruff.lint.isort]
+case-sensitive = true
+combine-as-imports = true
+known-first-party = ["ctts"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
 
 [tool.pyright]
 reportImplicitStringConcatenation = "warning"

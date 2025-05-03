@@ -1,7 +1,7 @@
 from enum import Enum
-from typing import TypeVar, Type, Any
+from typing import Any, Type, TypeVar
 
-T = TypeVar('T', bound=Enum)
+T = TypeVar("T", bound=Enum)
 
 
 def convert_to_enum(enum_class: Type[T], value: Any) -> T:
@@ -13,6 +13,5 @@ def convert_to_enum(enum_class: Type[T], value: Any) -> T:
     except ValueError:
         valid_values = [str(v.value) for v in enum_class]
         raise ValueError(
-            f"Invalid value: '{value}' for {enum_class.__name__}. "
-            f"Valid options are: {', '.join(valid_values)}"
+            f"Invalid value: '{value}' for {enum_class.__name__}. Valid options are: {', '.join(valid_values)}"
         )
