@@ -26,6 +26,7 @@ class Model(str, Enum):
 def get_openai_client() -> OpenAI:
     """Returns an OpenAI client."""
     settings = get_settings().openai
+    assert settings is not None, "OpenAI settings are not configured"
     return OpenAI(api_key=settings.api_key, organization=settings.organization_id)
 
 

@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -16,7 +17,7 @@ class OpenAISettings(BaseModel):
 class Settings(BaseSettings):
     """Main application settings."""
 
-    openai: OpenAISettings = Field(default_factory=OpenAISettings)
+    openai: OpenAISettings | None = Field(default=None, description="OpenAI settings")
 
     debug: bool = Field(False, description="Debug mode")
     log_level: str = Field("INFO", description="Logging level")
@@ -40,8 +41,8 @@ def get_settings(env_file: str | Path | None = None) -> Settings:
     else:
         env_path: Path = ROOT_DIR / ".env"
 
+    settings_kwargs: dict[str, Any] = {}
     if env_path.exists():
-        return Settings(_env_file=str(env_path))
+        settings_kwargs["_env_file"] = str(env_path)
 
-    # If .env is not found, but variables may be in the environment
-    return Settings()
+    return Settings(**settings_kwargs)

@@ -27,3 +27,16 @@ dev = [
 
 [tool.ruff]
 line-length = 120
+
+[tool.pyright]
+reportImplicitStringConcatenation = "warning"
+reportMissingParameterType = true
+reportMissingTypeArgument = true
+reportUnknownMemberType = false
+reportUnknownParameterType = false
+reportUnknownVariableType = false
+reportUntypedFunctionDecorator = false
+typeCheckingMode = "basic"
+useLibraryCodeForTypes = true
+reportGeneralTypeIssues = "error"
+reportReturnType = "error"
