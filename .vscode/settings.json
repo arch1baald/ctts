@@ -1,8 +1,12 @@
 {
-    "mypy.dmypyExecutable": ".venv/bin/dmypy",
-    "mypy.enabled": true,
-    "mypy.configFile": ".mypy.ini",
-    "mypy.targets": [
-        "src/",
-    ],
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.diagnosticMode": "openFilesOnly",
+    "python.analysis.useLibraryCodeForTypes": true,
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.inlayHints.variableTypes": true,
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportGeneralTypeIssues": "error",
+        "reportReturnType": "error"
+    }
 }

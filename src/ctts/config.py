@@ -3,7 +3,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-ROOT_DIR = Path(__file__).parent.parent.parent.resolve()
+ROOT_DIR: Path = Path(__file__).parent.parent.parent.resolve()
 
 
 class OpenAISettings(BaseModel):
@@ -38,7 +38,7 @@ def get_settings(env_file: str | Path | None = None) -> Settings:
     if env_file is not None:
         env_path = Path(env_file)
     else:
-        env_path = ROOT_DIR / ".env"
+        env_path: Path = ROOT_DIR / ".env"
 
     if env_path.exists():
         return Settings(_env_file=str(env_path))
