@@ -17,7 +17,10 @@ class Voice(str, Enum):
     ZOE = "zoe"
 
 
-MODEL_PATH = "lucataco/orpheus-3b-0.1-ft:79f2a473e6a9720716a473d9b2f2951437dbf91dc02ccb7079fb3d89b881207f"
+class Model(str, Enum):
+    """Available models for Orpheus TTS."""
+
+    ORPHEUS_3B = "lucataco/orpheus-3b-0.1-ft:79f2a473e6a9720716a473d9b2f2951437dbf91dc02ccb7079fb3d89b881207f"
 
 
 class EmotiveTags(str, Enum):
@@ -34,6 +37,7 @@ class EmotiveTags(str, Enum):
 def generate(
     text: str,
     speaker: Voice | str = Voice.TARA,
+    model: Model | str = Model.ORPHEUS_3B,
     language: str = "en",
     top_p: float = 0.95,
     top_k: int = 50,
@@ -49,6 +53,7 @@ def generate(
     Args:
         text: Text to convert to speech
         speaker: Speaker type (male, female, or tara)
+        model: TTS model to use
         language: Language code
         top_p: Top-p sampling parameter
         top_k: Top-k sampling parameter
@@ -62,6 +67,7 @@ def generate(
         Audio data as bytes
     """
     speaker_str = convert_to_enum(Voice, speaker).value
+    model_str = convert_to_enum(Model, model).value
     input_data = {
         "text": text,
         "speaker": speaker_str,
@@ -74,12 +80,13 @@ def generate(
         "duration_scale": duration_scale,
         "output_format": output_format,
     }
-    return run(MODEL_PATH, input_data)
+    return run(model_str, input_data)
 
 
 async def agenerate(
     text: str,
     speaker: Voice | str = Voice.TARA,
+    model: Model | str = Model.ORPHEUS_3B,
     language: str = "en",
     top_p: float = 0.95,
     top_k: int = 50,
@@ -99,6 +106,7 @@ async def agenerate(
     return generate(
         text=text,
         speaker=speaker,
+        model=model,
         language=language,
         top_p=top_p,
         top_k=top_k,

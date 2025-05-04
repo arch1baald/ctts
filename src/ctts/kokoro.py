@@ -73,12 +73,16 @@ class Voice(str, Enum):
     ZM_YUNYANG = "zm_yunyang"
 
 
-MODEL_PATH = "jaaari/kokoro-82m:f559560eb822dc509045f3921a1921234918b91739db4bf3daab2169b71c7a13"
+class Model(str, Enum):
+    """Available models for Kokoro TTS."""
+
+    KOKORO_82M = "jaaari/kokoro-82m:f559560eb822dc509045f3921a1921234918b91739db4bf3daab2169b71c7a13"
 
 
 def generate(
     text: str,
-    voice: Voice | str = Voice.AF_ALLOY,
+    voice: Voice | str = Voice.AF_NICOLE,
+    model: Model | str = Model.KOKORO_82M,
     seed: Optional[int] = None,
     speed: float = 1.0,
     denoising_strength: float = 0.5,
@@ -90,6 +94,7 @@ def generate(
     Args:
         text: Text to convert to speech
         voice: Voice to use
+        model: TTS model to use
         seed: Random seed for generation
         speed: Speech speed (default: 1.0)
         denoising_strength: Denoising strength (0-1)
@@ -99,6 +104,8 @@ def generate(
         Audio data as bytes
     """
     voice_str = convert_to_enum(Voice, voice).value
+    model_str = convert_to_enum(Model, model).value
+
     input_data = {
         "text": text,
         "voice": voice_str,
@@ -109,12 +116,13 @@ def generate(
     if seed is not None:
         input_data["seed"] = seed
 
-    return run(MODEL_PATH, input_data)
+    return run(model_str, input_data)
 
 
 async def agenerate(
     text: str,
-    voice: Voice | str = Voice.AF_ALLOY,
+    voice: Voice | str = Voice.AF_NICOLE,
+    model: Model | str = Model.KOKORO_82M,
     seed: Optional[int] = None,
     speed: float = 1.0,
     denoising_strength: float = 0.5,
@@ -130,6 +138,7 @@ async def agenerate(
     return generate(
         text=text,
         voice=voice,
+        model=model,
         seed=seed,
         speed=speed,
         denoising_strength=denoising_strength,
