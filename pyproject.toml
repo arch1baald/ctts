@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.11.12"
 dependencies = [
+    "cartesia>=2.0.2",
     "elevenlabs>=1.57.0",
     "hume>=0.8.3",
     "nest-asyncio>=1.6.0",

@@ -8,6 +8,7 @@ Compare different text-to-speech models:
 - [Orpheus](https://replicate.com/scuffedcontent/orpheus-v1)
 - [Zyphra/Zonos](https://playground.zyphra.com/audio)
 - [Hume AI](https://dev.hume.ai/docs/text-to-speech-tts/quickstart/python)
+- [Cartesia](https://docs.cartesia.ai/)
 
 
 ## Installation

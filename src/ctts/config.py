@@ -38,6 +38,12 @@ class HumeSettings(BaseModel):
     api_key: str = Field(..., description="Hume API key")
 
 
+class CartesiaSettings(BaseModel):
+    """Settings for Cartesia API."""
+
+    api_key: str = Field(..., description="Cartesia API key")
+
+
 class Settings(BaseSettings):
     """Main application settings."""
 
@@ -46,6 +52,7 @@ class Settings(BaseSettings):
     replicate: ReplicateSettings | None = Field(default=None, description="Replicate settings")
     zyphra: ZyphraSettings | None = Field(default=None, description="Zyphra settings")
     hume: HumeSettings | None = Field(default=None, description="Hume settings")
+    cartesia: CartesiaSettings | None = Field(default=None, description="Cartesia settings")
 
     debug: bool = Field(False, description="Debug mode")
     log_level: str = Field("INFO", description="Logging level")
