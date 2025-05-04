@@ -1,6 +1,6 @@
-# Project Name
+# CTTS
 
-A brief description of what this project does and who it's for.
+CTTS is a tool for comparing text-to-speech models.
 
 ## Installation
 
@@ -35,11 +35,8 @@ From Jupyter:
 
 ```python
 import os
-
 from IPython.display import Audio
-
 import ctts.openai
-
 
 os.environ["OPENAI__API_KEY"] = "<openai-api-key>"
 audio = ctts.openai.generate('Hello, world!', 'echo')
