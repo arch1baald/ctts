@@ -4,6 +4,11 @@
 UV = uv
 SRC_DIR = src
 
+# Check if uv is installed
+ifeq ($(shell which $(UV) 2>/dev/null),)
+$(error "uv utility not found. Please install it: https://docs.astral.sh/uv/getting-started/installation/")
+endif
+
 # Code linting
 lint:
 	$(UV) run ruff check $(SRC_DIR)
