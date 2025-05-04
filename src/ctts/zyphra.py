@@ -63,13 +63,17 @@ def get_client() -> ZyphraClient:
 def generate(
     text: str,
     voice: Union[Voice, str] = Voice.AMERICAN_FEMALE,
-    model: Union[Model, str] = Model.ZONOS_HYBRID,
+    model: Union[Model, str] = Model.ZONOS_TRANSFORMER,
     language: Union[Language, str] = Language.ENGLISH_US,
     speaking_rate: float = 15.0,
     pitch_std: Optional[float] = None,
     mime_type: Union[MimeType, str] = MimeType.WEBM,
     speaker_audio: Optional[str] = None,
     voice_name: Optional[str] = None,
+    fmax: Optional[float] = None,
+    emotion: Optional[Dict[str, float]] = None,
+    speaker_noised: Optional[bool] = None,
+    vqscore: Optional[float] = None,
 ) -> bytes:
     """
     Generates audio from text using Zyphra TTS API (synchronous version).
@@ -84,6 +88,10 @@ def generate(
         mime_type: Output audio format (audio/webm, audio/mp3, etc.)
         speaker_audio: Base64 encoded audio for voice cloning
         voice_name: Name of a custom voice to use
+        fmax: Maximum frequency for audio generation (default: 22050)
+        emotion: Emotional weights for speech generation (transformer model only)
+        speaker_noised: Denoises reference audio to improve voice stability (hybrid model only)
+        vqscore: Controls voice quality vs. speaker similarity (0.6-0.8)
 
     Returns:
         Audio data as bytes
@@ -107,6 +115,18 @@ def generate(
     if pitch_std is not None and model_enum == Model.ZONOS_TRANSFORMER:
         params["pitch_std"] = pitch_std
 
+    if fmax is not None:
+        params["fmax"] = fmax
+
+    if emotion is not None and model_enum == Model.ZONOS_TRANSFORMER:
+        params["emotion"] = emotion
+
+    if speaker_noised is not None and model_enum == Model.ZONOS_HYBRID:
+        params["speaker_noised"] = speaker_noised
+
+    if vqscore is not None:
+        params["vqscore"] = vqscore
+
     # Voice selection priority: voice_name > speaker_audio > default_voice_name
     if voice_name is not None:
         params["voice_name"] = voice_name
@@ -125,13 +145,17 @@ def generate(
 async def agenerate(
     text: str,
     voice: Union[Voice, str] = Voice.AMERICAN_FEMALE,
-    model: Union[Model, str] = Model.ZONOS_HYBRID,
+    model: Union[Model, str] = Model.ZONOS_TRANSFORMER,
     language: Union[Language, str] = Language.ENGLISH_US,
     speaking_rate: float = 15.0,
     pitch_std: Optional[float] = None,
     mime_type: Union[MimeType, str] = MimeType.WEBM,
     speaker_audio: Optional[str] = None,
     voice_name: Optional[str] = None,
+    fmax: Optional[float] = None,
+    emotion: Optional[Dict[str, float]] = None,
+    speaker_noised: Optional[bool] = None,
+    vqscore: Optional[float] = None,
 ) -> bytes:
     """
     Generates audio from text using Zyphra TTS API asynchronously.
@@ -146,6 +170,10 @@ async def agenerate(
         mime_type: Output audio format (audio/webm, audio/mp3, etc.)
         speaker_audio: Base64 encoded audio for voice cloning
         voice_name: Name of a custom voice to use
+        fmax: Maximum frequency for audio generation (default: 22050)
+        emotion: Emotional weights for speech generation (transformer model only)
+        speaker_noised: Denoises reference audio to improve voice stability (hybrid model only)
+        vqscore: Controls voice quality vs. speaker similarity (0.6-0.8)
 
     Returns:
         Audio data as bytes
@@ -162,4 +190,8 @@ async def agenerate(
         mime_type=mime_type,
         speaker_audio=speaker_audio,
         voice_name=voice_name,
+        fmax=fmax,
+        emotion=emotion,
+        speaker_noised=speaker_noised,
+        vqscore=vqscore,
     )
