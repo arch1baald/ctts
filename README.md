@@ -34,10 +34,14 @@ make install-dev
 From Jupyter:
 
 ```python
+import os
+
 from IPython.display import Audio
 
 import ctts.openai
 
+
+os.environ["OPENAI__API_KEY"] = "<openai-api-key>"
 audio = ctts.openai.generate('Hello, world!', 'echo')
 Audio(audio)
 ```

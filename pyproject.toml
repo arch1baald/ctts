@@ -8,13 +8,9 @@ authors = [
 ]
 requires-python = ">=3.11.12"
 dependencies = [
-    "flake8-annotations>=3.1.1",
     "openai>=1.76.2",
-    "pre-commit>=4.2.0",
     "pydantic>=2.11.4",
     "pydantic-settings>=2.9.1",
-    "pyright>=1.1.400",
-    "ruff>=0.11.8",
 ]
 
 [build-system]
@@ -23,6 +19,9 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
+    "pyright>=1.1.400",
+    "ruff>=0.11.8",
+    "pre-commit>=4.2.0",
     "jupyterlab>=4.4.1",
 ]
 
