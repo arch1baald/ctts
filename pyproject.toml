@@ -9,6 +9,8 @@ authors = [
 requires-python = ">=3.11.12"
 dependencies = [
     "elevenlabs>=1.57.0",
+    "hume>=0.8.3",
+    "nest-asyncio>=1.6.0",
     "openai>=1.76.2",
     "pandas>=2.2.2",
     "pydantic>=2.11.4",
