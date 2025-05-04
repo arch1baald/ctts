@@ -3,7 +3,7 @@
 This package provides interfaces to various text-to-speech APIs.
 """
 
-from ctts import config, elevenlabs, kokoro, openai, orpheus, replicate, utils
+from ctts import config, elevenlabs, kokoro, openai, orpheus, replicate, utils, zyphra
 
 # Expose key modules directly at the package level
 # This allows imports like `from ctts import openai, elevenlabs`
@@ -15,4 +15,5 @@ __all__ = [
     "orpheus",
     "replicate",
     "utils",
+    "zyphra",
 ]

@@ -1,7 +1,13 @@
 # CTTS
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/arch1baald/ctts/blob/main/example.ipynb?target=_blank)
 
-Compare different text-to-speech providers
+Compare different text-to-speech models:
+- [OpenAI TTS](https://platform.openai.com/docs/guides/text-to-speech)
+- [ElevenLabs](https://elevenlabs.io/)
+- [Kokoro](https://replicate.com/cjwbw/kokoro)
+- [Orpheus](https://replicate.com/scuffedcontent/orpheus-v1)
+- [Zyphra/Zonos](https://playground.zyphra.com/audio)
+
 
 ## Installation
 

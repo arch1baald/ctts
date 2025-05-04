@@ -26,12 +26,19 @@ class ReplicateSettings(BaseModel):
     api_key: str = Field(..., description="Replicate API key")
 
 
+class ZyphraSettings(BaseModel):
+    """Settings for Zyphra API."""
+
+    api_key: str = Field(..., description="Zyphra API key")
+
+
 class Settings(BaseSettings):
     """Main application settings."""
 
     openai: OpenAISettings | None = Field(default=None, description="OpenAI settings")
     elevenlabs: ElevenLabsSettings | None = Field(default=None, description="ElevenLabs settings")
     replicate: ReplicateSettings | None = Field(default=None, description="Replicate settings")
+    zyphra: ZyphraSettings | None = Field(default=None, description="Zyphra settings")
 
     debug: bool = Field(False, description="Debug mode")
     log_level: str = Field("INFO", description="Logging level")
