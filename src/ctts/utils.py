@@ -3,7 +3,8 @@ import time
 from enum import Enum
 from typing import Any, Awaitable, Callable, Dict, List, Tuple, Type, TypeVar, Union
 
-from IPython.display import Audio, display
+import pandas as pd
+from IPython.display import HTML, Audio, display
 
 T = TypeVar("T", bound=Enum)
 
@@ -90,15 +91,49 @@ async def batch_agenerate(
 
         _tasks.append(run_task(func, text, params, i))
 
+    print(f"Started {len(_tasks)} tasks...")
+
     results = []
     for future in asyncio.as_completed(_tasks):
         result = await future
 
-        display((result["func"], result["text"], result["params"], result["elapsed"]))
+        # Format result data
+        func_name = result["func"].__name__ if hasattr(result["func"], "__name__") else str(result["func"])
+        module_name = result["func"].__module__ if hasattr(result["func"], "__module__") else ""
+        full_name = f"{module_name}.{func_name}" if module_name else func_name
+
+        # Create data for the transposed table
+        table_data = {
+            "Model": full_name,
+            "Text": result["text"][:200] + ("..." if len(result["text"]) > 200 else ""),
+            "Time (s)": f"{result['elapsed']:.2f}",
+            "Status": "Success" if result["success"] else "Failed",
+        }
+
+        # Add all parameters to the table
+        for k, v in result["params"].items():
+            # Limit the length of parameter values for display
+            v_str = str(v)
+            table_data[f"Param: {k}"] = v_str[:100] + ("..." if len(v_str) > 100 else "")
+
+        # Create a transposed DataFrame (columns become rows)
+        df = pd.DataFrame.from_dict(table_data, orient="index", columns=["Value"])  # type: ignore
+
+        display(HTML(f"<h3>Result {len(results) + 1}</h3>"))
+        table_html = df.to_html()
+        display(HTML(table_html))
+
+        # Display audio if available
         if result["success"]:
-            display(Audio(result["result"]))
+            audio_data = result["result"]
+            display(Audio(audio_data))
         else:
-            display(result["error"])
+            print(result["error"])
+
+        # Add separator line
+        display(HTML("<hr style='margin: 2em 0;'>"))
+
         results.append(result)
 
+    print("Done!")
     return results
