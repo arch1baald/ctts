@@ -1,7 +1,7 @@
 import asyncio
 import time
 from enum import Enum
-from typing import Any, Awaitable, Callable, Dict, List, Tuple, Type, TypeVar
+from typing import Any, Awaitable, Callable, Dict, List, Tuple, Type, TypeVar, Union
 
 from IPython.display import Audio, display
 
@@ -63,20 +63,31 @@ async def run_task(
 
 
 async def batch_agenerate(
-    tasks: List[Tuple[Callable[[str], Awaitable[Any]], str, Dict[str, Any]]],
+    tasks: List[
+        Union[Tuple[Callable[[str], Awaitable[Any]], str], Tuple[Callable[[str], Awaitable[Any]], str, Dict[str, Any]]]
+    ],
 ) -> List[Dict[str, Any]]:
     """
     Asynchronously runs multiple generation functions and displays results as they complete.
 
     Args:
-        tasks_list: List of tuples in format [(function1, text1, params1), (function2, text2, params2), ...]
+        tasks: List of tuples in format [(function1, text1), (function2, text2, params2), ...]
+              If params are not provided, empty dict will be used as default
 
     Returns:
         List of results from each function in order of completion
     """
 
     _tasks = []
-    for i, (func, text, params) in enumerate(tasks):
+    for i, task_tuple in enumerate(tasks):
+        if len(task_tuple) == 2:
+            func, text = task_tuple
+            params = {}
+        elif len(task_tuple) == 3:
+            func, text, params = task_tuple
+        else:
+            raise ValueError(f"Invalid task tuple length: {len(task_tuple)}. Expected 2 or 3 elements.")
+
         _tasks.append(run_task(func, text, params, i))
 
     results = []
