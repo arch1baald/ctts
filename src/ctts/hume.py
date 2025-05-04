@@ -76,23 +76,21 @@ async def agenerate(
     elif description:
         utterance_params["description"] = description
 
-    # Set context for continuity if provided
-    context = None
-    if context_generation_id:
-        context = PostedContextWithGenerationId(generation_id=context_generation_id)
+    utterance = PostedUtterance(**utterance_params)
 
-    # Set format
-    format_params = None
+    # Prepare API call parameters
+    api_kwargs: Dict[str, Any] = {"utterances": [utterance], "num_generations": num_generations}
+
+    # Add context parameter if available
+    if context_generation_id:
+        api_kwargs["context"] = PostedContextWithGenerationId(generation_id=context_generation_id)
+
+    # Add format parameter only for PCM format
     if format_enum == Format.PCM:
-        format_params = FormatPcm(type="pcm")
+        api_kwargs["format"] = FormatPcm(type="pcm")
 
     # Call API and get response
-    response = await client.tts.synthesize_json(
-        utterances=[PostedUtterance(**utterance_params)],
-        context=context,
-        num_generations=num_generations,
-        format=format_params,
-    )
+    response = await client.tts.synthesize_json(**api_kwargs)
 
     # Return the first generation's audio as bytes
     audio_base64 = response.generations[0].audio
@@ -222,19 +220,20 @@ async def agenerate_with_continuity(
             elif description:
                 utterance_params["description"] = description
 
-            context = None
+            utterance = PostedUtterance(**utterance_params)
+
+            # Prepare the API call parameters
+            api_kwargs: Dict[str, Any] = {"utterances": [utterance]}
+
+            # Add context parameter if available
             if context_generation_id:
-                context = PostedContextWithGenerationId(generation_id=context_generation_id)
+                api_kwargs["context"] = PostedContextWithGenerationId(generation_id=context_generation_id)
 
-            format_params = None
+            # Add format parameter only for PCM format
             if format_enum == Format.PCM:
-                format_params = FormatPcm(type="pcm")
+                api_kwargs["format"] = FormatPcm(type="pcm")
 
-            response = await client.tts.synthesize_json(
-                utterances=[PostedUtterance(**utterance_params)],
-                context=context,
-                format=format_params,
-            )
+            response = await client.tts.synthesize_json(**api_kwargs)
 
             context_generation_id = response.generations[0].generation_id
 
@@ -392,20 +391,17 @@ async def stream(
 
         utterances.append(PostedUtterance(**utterance_params))
 
-    # Set context for continuity if provided
-    context = None
-    if context_generation_id:
-        context = PostedContextWithGenerationId(generation_id=context_generation_id)
+    # Prepare the API call parameters
+    api_kwargs: Dict[str, Any] = {"utterances": utterances}
 
-    # Set format
-    format_params = None
+    # Add context parameter if available
+    if context_generation_id:
+        api_kwargs["context"] = PostedContextWithGenerationId(generation_id=context_generation_id)
+
+    # Add format parameter only for PCM format
     if format_enum == Format.PCM:
-        format_params = FormatPcm(type="pcm")
+        api_kwargs["format"] = FormatPcm(type="pcm")
 
     # Stream audio
-    async for snippet in client.tts.synthesize_json_streaming(
-        utterances=utterances,
-        context=context,
-        format=format_params,
-    ):
+    async for snippet in client.tts.synthesize_json_streaming(**api_kwargs):
         yield base64.b64decode(snippet.audio)
