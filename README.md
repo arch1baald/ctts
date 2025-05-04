@@ -1,4 +1,5 @@
 # CTTS
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/arch1baald/ctts/blob/main/example.ipynb)
 
 Compare different text-to-speech providers
 
@@ -10,7 +11,12 @@ pip install --upgrade git+https://github.com/arch1baald/ctts.git
 
 ## Quick Start
 
-From notebook:
+The simplest way to get started is to open the notebook in Colab:
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/arch1baald/ctts/blob/main/example.ipynb)
+
+
+From Jupyter:
 ```python
 import os
 from IPython.display import Audio
