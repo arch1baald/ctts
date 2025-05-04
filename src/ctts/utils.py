@@ -91,7 +91,10 @@ async def batch_agenerate(
 
         _tasks.append(run_task(func, text, params, i))
 
-    print(f"Started {len(_tasks)} tasks...")
+    print(
+        f"Started {len(_tasks)} tasks... "
+        f"Results will be displayed as they complete and may differ from the order of input requests."
+    )
 
     results = []
     for future in asyncio.as_completed(_tasks):
