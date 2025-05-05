@@ -8,8 +8,8 @@ import numpy as np
 from cartesia import AsyncCartesia, Cartesia
 from pydantic import BaseModel
 
-from ctts.config import get_settings
-from ctts.utils import convert_to_enum
+from ctts.config import TIMEOUT, get_settings
+from ctts.utils import async_timeout, convert_to_enum, timeout
 
 
 class Model(str, Enum):
@@ -368,6 +368,7 @@ def get_async_client() -> AsyncCartesia:
     return AsyncCartesia(api_key=settings.api_key)
 
 
+@timeout(TIMEOUT)
 def generate(
     text: str,
     model: Union[Model, str] = Model.SONIC_2,
@@ -425,6 +426,7 @@ def generate(
     return output.getvalue()
 
 
+@async_timeout(TIMEOUT)
 async def agenerate(
     text: str,
     model: Union[Model, str] = Model.SONIC_2,
@@ -514,6 +516,7 @@ class TTSWithTimestampsResponse(BaseModel):
     phoneme_ends: List[float]
 
 
+@async_timeout(TIMEOUT)
 async def agenerate_with_timestamps(
     text: str,
     model: Union[Model, str] = Model.SONIC_2,

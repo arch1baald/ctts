@@ -1,8 +1,9 @@
 from enum import Enum
 from typing import Optional
 
+from ctts.config import TIMEOUT
 from ctts.replicate import run
-from ctts.utils import convert_to_enum
+from ctts.utils import async_timeout, convert_to_enum, timeout
 
 
 class Voice(str, Enum):
@@ -79,6 +80,7 @@ class Model(str, Enum):
     KOKORO_82M = "jaaari/kokoro-82m:f559560eb822dc509045f3921a1921234918b91739db4bf3daab2169b71c7a13"
 
 
+@timeout(TIMEOUT)
 def generate(
     text: str,
     voice: Voice | str = Voice.AF_NICOLE,
@@ -119,6 +121,7 @@ def generate(
     return run(model_str, input_data)
 
 
+@async_timeout(TIMEOUT)
 async def agenerate(
     text: str,
     voice: Voice | str = Voice.AF_NICOLE,

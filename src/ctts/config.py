@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT_DIR: Path = Path(__file__).parent.parent.parent.resolve()
+TIMEOUT: int = 10
 
 
 class OpenAISettings(BaseModel):

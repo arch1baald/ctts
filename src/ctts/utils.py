@@ -4,12 +4,13 @@ import signal
 import time
 from enum import Enum
 from functools import wraps
-from typing import Any, Awaitable, Callable, Dict, List, Tuple, Type, TypeVar, Union
+from typing import Any, Awaitable, Callable, Dict, List, Tuple, Type, TypeVar, Union, cast
 
 import pandas as pd
 from IPython.display import HTML, Audio, display
 
 T = TypeVar("T", bound=Enum)
+F = TypeVar("F", bound=Callable[..., Awaitable[Any]])
 
 
 def convert_to_enum(enum_class: Type[T], value: Any) -> T:
@@ -57,6 +58,17 @@ def timeout(seconds: int) -> Callable[..., Any]:
                 signal.alarm(0)
 
         return wrapper
+
+    return decorator
+
+
+def async_timeout(seconds: int) -> Callable[[F], F]:
+    def decorator(func: F) -> F:
+        @wraps(func)
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
+            return await asyncio.wait_for(func(*args, **kwargs), timeout=seconds)
+
+        return cast(F, wrapper)
 
     return decorator
 

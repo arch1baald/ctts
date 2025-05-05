@@ -1,7 +1,8 @@
 from enum import Enum
 
+from ctts.config import TIMEOUT
 from ctts.replicate import run
-from ctts.utils import convert_to_enum
+from ctts.utils import async_timeout, convert_to_enum, timeout
 
 
 class Voice(str, Enum):
@@ -34,6 +35,7 @@ class EmotiveTags(str, Enum):
     GASP = "`<gasp>`"
 
 
+@timeout(TIMEOUT)
 def generate(
     text: str,
     speaker: Voice | str = Voice.TARA,
@@ -83,6 +85,7 @@ def generate(
     return run(model_str, input_data)
 
 
+@async_timeout(TIMEOUT)
 async def agenerate(
     text: str,
     speaker: Voice | str = Voice.TARA,

@@ -3,8 +3,8 @@ from functools import lru_cache
 
 from openai import AsyncOpenAI, OpenAI
 
-from ctts.config import get_settings
-from ctts.utils import convert_to_enum
+from ctts.config import TIMEOUT, get_settings
+from ctts.utils import async_timeout, convert_to_enum, timeout
 
 
 class Voice(str, Enum):
@@ -41,6 +41,7 @@ def get_aclient() -> AsyncOpenAI:
     return AsyncOpenAI(api_key=settings.api_key, organization=settings.organization_id)
 
 
+@timeout(TIMEOUT)
 def generate(text: str, voice: Voice | str = Voice.ALLOY, model: Model | str = Model.TTS_1) -> bytes:
     """
     Generates audio from text using OpenAI TTS API (synchronous version).
@@ -60,6 +61,7 @@ def generate(text: str, voice: Voice | str = Voice.ALLOY, model: Model | str = M
     return response.content
 
 
+@async_timeout(TIMEOUT)
 async def agenerate(text: str, voice: Voice | str = Voice.ALLOY, model: Model | str = Model.TTS_1) -> bytes:
     """
     Generates audio from text using OpenAI TTS API asynchronously.
