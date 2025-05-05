@@ -1,10 +1,9 @@
 import asyncio
 import random
-import signal
 import time
 from enum import Enum
 from functools import wraps
-from typing import Any, Awaitable, Callable, Dict, List, Tuple, Type, TypeVar, Union, cast
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Tuple, Type, TypeVar, Union, cast
 
 import pandas as pd
 from IPython.display import HTML, Audio, display
@@ -44,18 +43,28 @@ class TimeoutException(Exception):
 
 
 def timeout(seconds: int) -> Callable[..., Any]:
+    """
+    A decorator that adds timeout functionality to functions.
+    Uses ThreadPoolExecutor instead of signals for multi-threading support.
+
+    Args:
+        seconds: Maximum execution time in seconds
+
+    Returns:
+        Decorated function with timeout capability
+    """
+
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
-            def _handle_timeout(signum: int, frame: Any) -> None:
-                raise TimeoutException(f"Function '{func.__name__}' timed out after {seconds}s")
+            import concurrent.futures
 
-            signal.signal(signal.SIGALRM, _handle_timeout)
-            signal.alarm(seconds)
-            try:
-                return func(*args, **kwargs)
-            finally:
-                signal.alarm(0)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(func, *args, **kwargs)
+                try:
+                    return future.result(timeout=seconds)
+                except concurrent.futures.TimeoutError:
+                    raise TimeoutException(f"Function '{func.__name__}' timed out after {seconds}s")
 
         return wrapper
 
@@ -73,24 +82,37 @@ def async_timeout(seconds: int) -> Callable[[F], F]:
     return decorator
 
 
-async def run_task(
-    func: Callable[[str], Awaitable[Any]], text: str, params: Dict[str, Any], index: int = 0
+def run_task(
+    func: Callable[[str], Any], text: str, params: Dict[str, Any], index: int = 0, timeout_seconds: int = 10
 ) -> Dict[str, Any]:
     """
-    Asynchronously runs a generation function and returns a dictionary with the result.
+    Runs a synchronous generation function and returns a dictionary with the result.
+    Uses ThreadPoolExecutor with timeout instead of signals for multi-thread compatibility.
 
     Args:
         func: The function to run
         text: The text to pass to the function
         params: The parameters to pass to the function
         index: The index of the task
+        timeout_seconds: Maximum execution time in seconds
 
     Returns:
         A dictionary with the result of the function
     """
+    import concurrent.futures
+
     start_time = time.time()
+
+    # Wrapper function to capture the actual function call
+    def _run_func() -> Any:
+        return func(text, **params)
+
     try:
-        result = await func(text, **params)
+        # Use a separate executor just for this task with timeout
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(_run_func)
+            result = future.result(timeout=timeout_seconds)
+
         elapsed = time.time() - start_time
         return {
             "index": index,
@@ -100,6 +122,17 @@ async def run_task(
             "result": result,
             "elapsed": elapsed,
             "success": True,
+        }
+    except concurrent.futures.TimeoutError:
+        elapsed = time.time() - start_time
+        return {
+            "index": index,
+            "func": func,
+            "text": text,
+            "params": params,
+            "error": f"Function '{func.__name__}' timed out after {timeout_seconds}s",
+            "elapsed": elapsed,
+            "success": False,
         }
     except Exception as e:
         elapsed = time.time() - start_time
@@ -114,21 +147,24 @@ async def run_task(
         }
 
 
-async def batch_agenerate(
-    tasks: List[
-        Union[Tuple[Callable[[str], Awaitable[Any]], str], Tuple[Callable[[str], Awaitable[Any]], str, Dict[str, Any]]]
-    ],
+def batch_generate(
+    tasks: List[Union[Tuple[Callable[[str], Any], str], Tuple[Callable[[str], Any], str, Dict[str, Any]]]],
+    max_workers: Optional[int] = None,
+    timeout_seconds: int = 10,
 ) -> List[Dict[str, Any]]:
     """
-    Asynchronously runs multiple generation functions and displays results as they complete.
+    Runs multiple synchronous generation functions in parallel using thread pool and displays results as they complete.
 
     Args:
         tasks: List of tuples in format [(function1, text1), (function2, text2, params2), ...]
               If params are not provided, empty dict will be used as default
+        max_workers: Maximum number of worker threads (default: None - uses ThreadPoolExecutor default)
+        timeout_seconds: Maximum execution time per task in seconds (default: 10)
 
     Returns:
         List of results from each function in order of completion
     """
+    import concurrent.futures
 
     _tasks = []
     for i, task_tuple in enumerate(tasks):
@@ -140,54 +176,62 @@ async def batch_agenerate(
         else:
             raise ValueError(f"Invalid task tuple length: {len(task_tuple)}. Expected 2 or 3 elements.")
 
-        _tasks.append(run_task(func, text, params, i))
+        _tasks.append((func, text, params, i))
 
     print(
-        f"Started {len(_tasks)} tasks... "
+        f"Started {len(_tasks)} tasks in parallel... "
         f"Results will be displayed as they complete and may differ from the order of input requests."
     )
 
     results = []
-    for future in asyncio.as_completed(_tasks):
-        result = await future
-
-        # Format result data
-        func_name = result["func"].__name__ if hasattr(result["func"], "__name__") else str(result["func"])
-        module_name = result["func"].__module__ if hasattr(result["func"], "__module__") else ""
-        full_name = f"{module_name}.{func_name}" if module_name else func_name
-
-        # Create data for the transposed table
-        table_data = {
-            "Model": full_name,
-            "Text": result["text"][:200] + ("..." if len(result["text"]) > 200 else ""),
-            "Time (s)": f"{result['elapsed']:.2f}",
-            "Status": "Success" if result["success"] else "Failed",
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # Submit all tasks to the executor
+        futures = {
+            executor.submit(run_task, func, text, params, index, timeout_seconds): index
+            for func, text, params, index in _tasks
         }
 
-        # Add all parameters to the table
-        for k, v in result["params"].items():
-            # Limit the length of parameter values for display
-            v_str = str(v)
-            table_data[f"Param: {k}"] = v_str[:100] + ("..." if len(v_str) > 100 else "")
+        # Process results as they complete
+        for future in concurrent.futures.as_completed(futures):
+            result = future.result()
 
-        # Create a transposed DataFrame (columns become rows)
-        df = pd.DataFrame.from_dict(table_data, orient="index", columns=["Value"])  # type: ignore
+            # Format result data
+            func_name = result["func"].__name__ if hasattr(result["func"], "__name__") else str(result["func"])
+            module_name = result["func"].__module__ if hasattr(result["func"], "__module__") else ""
+            full_name = f"{module_name}.{func_name}" if module_name else func_name
 
-        display(HTML(f"<h3>Result {len(results) + 1}</h3>"))
-        table_html = df.to_html()
-        display(HTML(table_html))
+            # Create data for the transposed table
+            table_data = {
+                "Model": full_name,
+                "Text": result["text"][:200] + ("..." if len(result["text"]) > 200 else ""),
+                "Time (s)": f"{result['elapsed']:.2f}",
+                "Status": "Success" if result["success"] else "Failed",
+            }
 
-        # Display audio if available
-        if result["success"]:
-            audio_data = result["result"]
-            display(Audio(audio_data))
-        else:
-            print(result["error"])
+            # Add all parameters to the table
+            for k, v in result["params"].items():
+                # Limit the length of parameter values for display
+                v_str = str(v)
+                table_data[f"Param: {k}"] = v_str[:100] + ("..." if len(v_str) > 100 else "")
 
-        # Add separator line
-        display(HTML("<hr style='margin: 2em 0;'>"))
+            # Create a transposed DataFrame (columns become rows)
+            df = pd.DataFrame.from_dict(table_data, orient="index", columns=["Value"])  # type: ignore
 
-        results.append(result)
+            display(HTML(f"<h3>Result {len(results) + 1}</h3>"))
+            table_html = df.to_html()
+            display(HTML(table_html))
+
+            # Display audio if available
+            if result["success"]:
+                audio_data = result["result"]
+                display(Audio(audio_data))
+            else:
+                print(result["error"])
+
+            # Add separator line
+            display(HTML("<hr style='margin: 2em 0;'>"))
+
+            results.append(result)
 
     print("Done!")
     return results
