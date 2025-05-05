@@ -372,7 +372,7 @@ def generate(
     text: str,
     model: Union[Model, str] = Model.SONIC_2,
     language: Union[Language, str] = Language.ENGLISH,
-    voice_id: Optional[str] = None,
+    voice: Union[Voice, str] = Voice.SARAH,
     voice_audio: Optional[Union[bytes, BinaryIO]] = None,
     duration: Optional[float] = None,
 ) -> bytes:
@@ -383,7 +383,7 @@ def generate(
         text: Text to convert to speech
         model: TTS model to use (sonic-2, sonic-turbo, sonic)
         language: Language code (en, fr, de, etc.)
-        voice_id: ID of a saved voice to use
+        voice: Voice to use (enum or ID string)
         voice_audio: Audio sample for voice cloning
         duration: Target duration in seconds for the generated audio
 
@@ -406,13 +406,12 @@ def generate(
     }
 
     # Add voice - required parameter
-    if voice_id:
-        params["voice"] = {"id": voice_id}
-    elif voice_audio:
+    if voice_audio:
         params["voice"] = {"audio": voice_audio}
     else:
-        # Use default voice if not specified
-        params["voice"] = {"id": Voice.SARAH.value}
+        # Use voice enum or string
+        voice_enum = convert_to_enum(Voice, voice)
+        params["voice"] = {"id": voice_enum.value}
 
     # Add duration parameter if specified
     if duration is not None:
@@ -430,7 +429,7 @@ async def agenerate(
     text: str,
     model: Union[Model, str] = Model.SONIC_2,
     language: Union[Language, str] = Language.ENGLISH,
-    voice_id: Optional[str] = None,
+    voice: Union[Voice, str] = Voice.SARAH,
     voice_audio: Optional[Union[bytes, BinaryIO]] = None,
     duration: Optional[float] = None,
 ) -> bytes:
@@ -441,7 +440,7 @@ async def agenerate(
         text: Text to convert to speech
         model: TTS model to use (sonic-2, sonic-turbo, sonic)
         language: Language code (en, fr, de, etc.)
-        voice_id: ID of a saved voice to use
+        voice: Voice to use (enum or ID string)
         voice_audio: Audio sample for voice cloning
         duration: Target duration in seconds for the generated audio
 
@@ -464,13 +463,12 @@ async def agenerate(
     }
 
     # Add voice - required parameter
-    if voice_id:
-        params["voice"] = {"id": voice_id}
-    elif voice_audio:
+    if voice_audio:
         params["voice"] = {"audio": voice_audio}
     else:
-        # Use default voice if not specified
-        params["voice"] = {"id": Voice.SARAH.value}
+        # Use voice enum or string
+        voice_enum = convert_to_enum(Voice, voice)
+        params["voice"] = {"id": voice_enum.value}
 
     # Add duration parameter if specified
     if duration is not None:
@@ -520,25 +518,31 @@ async def agenerate_with_timestamps(
     text: str,
     model: Union[Model, str] = Model.SONIC_2,
     language: Union[Language, str] = Language.ENGLISH,
-    voice_id: Optional[str] = None,
+    voice: Union[Voice, str] = Voice.SARAH,
     voice_audio: Optional[Union[bytes, BinaryIO]] = None,
 ) -> TTSWithTimestampsResponse:
     """
     Asynchronously generates audio and returns a Pydantic object with WAV bytes,
     word-level and phoneme-level timestamps.
+
+    Args:
+        text: Text to convert to speech
+        model: TTS model to use (sonic-2, sonic-turbo, sonic)
+        language: Language code (en, fr, de, etc.)
+        voice: Voice to use (enum or ID string)
+        voice_audio: Audio sample for voice cloning
     """
     client = get_async_client()
     model_enum = convert_to_enum(Model, model)
     language_enum = convert_to_enum(Language, language)
+    voice_enum = convert_to_enum(Voice, voice)
 
     ws = await client.tts.websocket()
     params = {
         "model_id": model_enum.value,
         "transcript": text,
         "language": language_enum.value,
-        "voice": {"id": voice_id}
-        if voice_id
-        else ({"audio": voice_audio} if voice_audio else {"id": Voice.SARAH.value}),
+        "voice": {"audio": voice_audio} if voice_audio else {"id": voice_enum.value},
         "output_format": {"container": "raw", "encoding": "pcm_f32le", "sample_rate": 44100},
         "add_timestamps": True,
         "add_phoneme_timestamps": True,
