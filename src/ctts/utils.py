@@ -1,6 +1,9 @@
 import asyncio
+import random
+import signal
 import time
 from enum import Enum
+from functools import wraps
 from typing import Any, Awaitable, Callable, Dict, List, Tuple, Type, TypeVar, Union
 
 import pandas as pd
@@ -20,6 +23,42 @@ def convert_to_enum(enum_class: Type[T], value: Any) -> T:
         raise ValueError(
             f"Invalid value: '{value}' for {enum_class.__name__}. Valid options are: {', '.join(valid_values)}"
         )
+
+
+def random_choice_enum(enum_class: Type[T]) -> T:
+    """
+    Randomly choose an enum member.
+
+    Args:
+        enum_class: The enum class to choose from
+
+    Returns:
+        The chosen enum member
+    """
+    return random.choice(list(enum_class))
+
+
+class TimeoutException(Exception):
+    pass
+
+
+def timeout(seconds: int) -> Callable[..., Any]:
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        @wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            def _handle_timeout(signum: int, frame: Any) -> None:
+                raise TimeoutException(f"Function '{func.__name__}' timed out after {seconds}s")
+
+            signal.signal(signal.SIGALRM, _handle_timeout)
+            signal.alarm(seconds)
+            try:
+                return func(*args, **kwargs)
+            finally:
+                signal.alarm(0)
+
+        return wrapper
+
+    return decorator
 
 
 async def run_task(

@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional, Union
 from zyphra import ZyphraClient
 
 from ctts.config import get_settings
-from ctts.utils import convert_to_enum
+from ctts.utils import convert_to_enum, timeout
 
 
 class Voice(str, Enum):
@@ -60,6 +60,7 @@ def get_client() -> ZyphraClient:
     return ZyphraClient(api_key=settings.api_key)
 
 
+@timeout(5)
 def generate(
     text: str,
     voice: Union[Voice, str] = Voice.AMERICAN_FEMALE,
