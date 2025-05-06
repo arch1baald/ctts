@@ -4,9 +4,10 @@ from io import BytesIO
 
 from elevenlabs import VoiceSettings
 from elevenlabs.client import ElevenLabs
+from timeout_function_decorator import timeout
 
 from ctts.config import TIMEOUT, get_settings
-from ctts.utils import async_timeout, convert_to_enum, timeout
+from ctts.utils import convert_to_enum
 
 
 class Voice(str, Enum):
@@ -99,7 +100,7 @@ def generate(
     return audio_data.read()
 
 
-@async_timeout(TIMEOUT)
+@timeout(TIMEOUT)
 async def agenerate(
     text: str,
     voice: Voice | str = Voice.RACHEL,

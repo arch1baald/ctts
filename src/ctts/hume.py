@@ -5,9 +5,10 @@ from typing import Any, Dict, Optional, Union
 
 from hume import AsyncHumeClient, HumeClient
 from hume.tts import FormatPcm, PostedContextWithGenerationId, PostedUtterance, PostedUtteranceVoiceWithName
+from timeout_function_decorator import timeout
 
 from ctts.config import TIMEOUT, get_settings
-from ctts.utils import async_timeout, convert_to_enum, timeout
+from ctts.utils import convert_to_enum
 
 
 class Format(str, Enum):
@@ -104,7 +105,7 @@ def generate(
     return base64.b64decode(response.generations[0].audio)
 
 
-@async_timeout(TIMEOUT)
+@timeout(TIMEOUT)
 async def agenerate(
     text: str,
     description: Optional[str] = None,

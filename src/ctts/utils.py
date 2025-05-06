@@ -1,9 +1,7 @@
-import asyncio
 import random
 import time
 from enum import Enum
-from functools import wraps
-from typing import Any, Awaitable, Callable, Dict, List, Optional, Tuple, Type, TypeVar, Union, cast
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 import pandas as pd
 from IPython.display import HTML, Audio, display
@@ -40,46 +38,6 @@ def random_choice_enum(enum_class: Type[T]) -> T:
 
 class TimeoutException(Exception):
     pass
-
-
-def timeout(seconds: int) -> Callable[..., Any]:
-    """
-    A decorator that adds timeout functionality to functions.
-    Uses ThreadPoolExecutor instead of signals for multi-threading support.
-
-    Args:
-        seconds: Maximum execution time in seconds
-
-    Returns:
-        Decorated function with timeout capability
-    """
-
-    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
-        @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
-            import concurrent.futures
-
-            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-                future = executor.submit(func, *args, **kwargs)
-                try:
-                    return future.result(timeout=seconds)
-                except concurrent.futures.TimeoutError:
-                    raise TimeoutException(f"Function '{func.__name__}' timed out after {seconds}s")
-
-        return wrapper
-
-    return decorator
-
-
-def async_timeout(seconds: int) -> Callable[[F], F]:
-    def decorator(func: F) -> F:
-        @wraps(func)
-        async def wrapper(*args: Any, **kwargs: Any) -> Any:
-            return await asyncio.wait_for(func(*args, **kwargs), timeout=seconds)
-
-        return cast(F, wrapper)
-
-    return decorator
 
 
 def run_task(

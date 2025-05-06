@@ -3,10 +3,11 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
+from timeout_function_decorator import timeout
 from zyphra import ZyphraClient
 
 from ctts.config import TIMEOUT, get_settings
-from ctts.utils import async_timeout, convert_to_enum, timeout
+from ctts.utils import convert_to_enum
 
 
 class Voice(str, Enum):
@@ -143,7 +144,7 @@ def generate(
     return response
 
 
-@async_timeout(TIMEOUT)
+@timeout(TIMEOUT)
 async def agenerate(
     text: str,
     voice: Union[Voice, str] = Voice.AMERICAN_FEMALE,

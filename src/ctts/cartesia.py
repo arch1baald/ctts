@@ -7,9 +7,10 @@ from typing import BinaryIO, List, Optional, Union
 import numpy as np
 from cartesia import AsyncCartesia, Cartesia
 from pydantic import BaseModel
+from timeout_function_decorator import timeout
 
 from ctts.config import TIMEOUT, get_settings
-from ctts.utils import async_timeout, convert_to_enum, timeout
+from ctts.utils import convert_to_enum
 
 
 class Model(str, Enum):
@@ -426,7 +427,7 @@ def generate(
     return output.getvalue()
 
 
-@async_timeout(TIMEOUT)
+@timeout(TIMEOUT)
 async def agenerate(
     text: str,
     model: Union[Model, str] = Model.SONIC_2,
@@ -516,7 +517,7 @@ class TTSWithTimestampsResponse(BaseModel):
     phoneme_ends: List[float]
 
 
-@async_timeout(TIMEOUT)
+@timeout(TIMEOUT)
 async def agenerate_with_timestamps(
     text: str,
     model: Union[Model, str] = Model.SONIC_2,

@@ -453,6 +453,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "replicate" },
+    { name = "timeout-function-decorator" },
     { name = "zyphra" },
 ]
 
@@ -476,6 +477,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.11.4" },
     { name = "pydantic-settings", specifier = ">=2.9.1" },
     { name = "replicate", specifier = ">=1.0.6" },
+    { name = "timeout-function-decorator", specifier = ">=2.0.0" },
     { name = "zyphra", specifier = ">=0.1.6" },
 ]
 
@@ -2204,6 +2206,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/8a/11/965c6fd8e5cc254f1fe142d547387da17a8ebfd75a3455f637c663fb38a0/terminado-0.18.1.tar.gz", hash = "sha256:de09f2c4b85de4765f7714688fff57d3e75bad1f909b589fde880460c753fd2e", size = 32701, upload-time = "2024-03-12T14:34:39.026Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/6a/9e/2064975477fdc887e47ad42157e214526dcad8f317a948dee17e1659a62f/terminado-0.18.1-py3-none-any.whl", hash = "sha256:a4468e1b37bb318f8a86514f65814e1afc977cf29b3992a4500d9dd305dcceb0", size = 14154, upload-time = "2024-03-12T14:34:36.569Z" },
+]
+
+[[package]]
+name = "timeout-function-decorator"
+version = "2.0.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ca/b1/ccfea33f5d8b2f13419d08d801a584120ddec57accacf5225ea98bf3c868/timeout-function-decorator-2.0.0.tar.gz", hash = "sha256:9ad17a5a9a9edb5129ca8c6355eaaab3bd97c4ee703f8af106ca872e98334409", size = 15759, upload-time = "2022-12-12T21:55:40.88Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ff/46/19a778e4162a3e021168f6f20c5228ba891dfa5234844b7eabeb29be0a26/timeout_function_decorator-2.0.0-py3-none-any.whl", hash = "sha256:5d80b617f0b0f90d6eee6a64ceb5d98cf5c28f77f190b8f304670c0116fd9045", size = 16524, upload-time = "2022-12-12T21:55:39.066Z" },
 ]
 
 [[package]]

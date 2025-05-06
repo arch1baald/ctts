@@ -2,9 +2,10 @@ from enum import Enum
 from functools import lru_cache
 
 from openai import AsyncOpenAI, OpenAI
+from timeout_function_decorator import timeout
 
 from ctts.config import TIMEOUT, get_settings
-from ctts.utils import async_timeout, convert_to_enum, timeout
+from ctts.utils import convert_to_enum
 
 
 class Voice(str, Enum):
@@ -61,7 +62,7 @@ def generate(text: str, voice: Voice | str = Voice.ALLOY, model: Model | str = M
     return response.content
 
 
-@async_timeout(TIMEOUT)
+@timeout(TIMEOUT)
 async def agenerate(text: str, voice: Voice | str = Voice.ALLOY, model: Model | str = Model.TTS_1) -> bytes:
     """
     Generates audio from text using OpenAI TTS API asynchronously.

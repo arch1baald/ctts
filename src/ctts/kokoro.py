@@ -1,9 +1,11 @@
 from enum import Enum
 from typing import Optional
 
+from timeout_function_decorator import timeout
+
 from ctts.config import TIMEOUT
 from ctts.replicate import run
-from ctts.utils import async_timeout, convert_to_enum, timeout
+from ctts.utils import convert_to_enum
 
 
 class Voice(str, Enum):
@@ -121,7 +123,7 @@ def generate(
     return run(model_str, input_data)
 
 
-@async_timeout(TIMEOUT)
+@timeout(TIMEOUT)
 async def agenerate(
     text: str,
     voice: Voice | str = Voice.AF_NICOLE,
