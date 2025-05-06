@@ -9,8 +9,8 @@ from cartesia import AsyncCartesia, Cartesia
 from pydantic import BaseModel
 from timeout_function_decorator import timeout
 
-from ctts.config import TIMEOUT, get_settings
-from ctts.utils import convert_to_enum
+from utts.config import TIMEOUT, get_settings
+from utts.utils import convert_to_enum
 
 
 class Model(str, Enum):

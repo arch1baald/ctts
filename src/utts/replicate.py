@@ -4,7 +4,7 @@ from typing import Any, Dict, Iterator
 
 import replicate
 
-from ctts.config import get_settings
+from utts.config import get_settings
 
 
 @lru_cache()

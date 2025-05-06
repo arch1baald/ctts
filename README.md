@@ -1,7 +1,7 @@
-# CTTS
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/arch1baald/ctts/blob/main/example.ipynb?target=_blank)
+# UTTS
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/arch1baald/utts/blob/main/example.ipynb?target=_blank)
 
-Compare different text-to-speech models. Currently supports:
+Universal interface to test and compare text-to-speech models. Currently supports:
 - [OpenAI TTS](https://platform.openai.com/docs/guides/text-to-speech)
 - [ElevenLabs](https://elevenlabs.io/)
 - [Kokoro](https://replicate.com/cjwbw/kokoro)
@@ -14,12 +14,12 @@ Compare different text-to-speech models. Currently supports:
 ## Installation
 
 ```bash
-pip install ctts
+pip install utts
 ```
 
 or install from source:
 ```bash
-pip install --upgrade git+https://github.com/arch1baald/ctts.git
+pip install --upgrade git+https://github.com/arch1baald/utts.git
 ```
 
 Obtain API keys for the services you want to use:
@@ -34,17 +34,17 @@ Obtain API keys for the services you want to use:
 
 The simplest way to get started is to open the notebook in Colab:
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/arch1baald/ctts/blob/main/example.ipynb?target=_blank)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/arch1baald/utts/blob/main/example.ipynb)
 
 
 Or test from Jupyter Notebook:
 ```python
 import os
 from IPython.display import Audio
-import ctts.openai
+import utts.openai
 
 os.environ["OPENAI__API_KEY"] = "<openai-api-key>"
-audio = ctts.openai.generate('Hello, world!', 'echo')
+audio = utts.openai.generate('Hello, world!', 'echo')
 Audio(audio)
 ```
 
@@ -60,8 +60,8 @@ Audio(audio)
 
 Clone the repository:
 ```bash
-git clone https://github.com/arch1baald/ctts.git
-cd ctts
+git clone https://github.com/arch1baald/utts.git
+cd utts
 ```
 
 Install in development mode:

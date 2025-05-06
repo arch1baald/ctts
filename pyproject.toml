@@ -1,7 +1,7 @@
 [project]
-name = "ctts"
+name = "utts"
 version = "0.1.0"
-description = "Compare different text-to-speech providers"
+description = "Universal interface to test and compare text-to-speech providers"
 readme = "README.md"
 authors = [
     { name = "Dave Savostyanov", email = "ds@artifactory.ai" }
@@ -58,7 +58,7 @@ ignore = [
 [tool.ruff.lint.isort]
 case-sensitive = true
 combine-as-imports = true
-known-first-party = ["ctts"]
+known-first-party = ["utts"]
 
 [tool.ruff.format]
 quote-style = "double"

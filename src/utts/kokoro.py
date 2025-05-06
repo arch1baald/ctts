@@ -3,9 +3,9 @@ from typing import Optional
 
 from timeout_function_decorator import timeout
 
-from ctts.config import TIMEOUT
-from ctts.replicate import run
-from ctts.utils import convert_to_enum
+from utts.config import TIMEOUT
+from utts.replicate import run
+from utts.utils import convert_to_enum
 
 
 class Voice(str, Enum):

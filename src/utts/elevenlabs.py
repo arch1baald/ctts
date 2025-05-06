@@ -6,8 +6,8 @@ from elevenlabs import VoiceSettings
 from elevenlabs.client import ElevenLabs
 from timeout_function_decorator import timeout
 
-from ctts.config import TIMEOUT, get_settings
-from ctts.utils import convert_to_enum
+from utts.config import TIMEOUT, get_settings
+from utts.utils import convert_to_enum
 
 
 class Voice(str, Enum):
