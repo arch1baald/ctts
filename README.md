@@ -14,6 +14,11 @@ Compare different text-to-speech models. Currently supports:
 ## Installation
 
 ```bash
+pip install ctts
+```
+
+or install from source:
+```bash
 pip install --upgrade git+https://github.com/arch1baald/ctts.git
 ```
 
@@ -74,9 +79,4 @@ make help
 Run linting and type checking:
 ```bash
 make lint
-```
-
-Format code:
-```bash
-make format
 ```

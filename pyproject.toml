@@ -6,6 +6,8 @@ readme = "README.md"
 authors = [
     { name = "Dave Savostyanov", email = "ds@artifactory.ai" }
 ]
+license = { text = "MIT" }
+classifiers = ["Programming Language :: Python :: 3"]
 requires-python = ">=3.11.12"
 dependencies = [
     "cartesia>=2.0.2",
@@ -24,6 +26,12 @@ dependencies = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple/"
+publish-url = "https://pypi.org/legacy/"
+explicit = true
 
 [dependency-groups]
 dev = [
