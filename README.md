@@ -1,5 +1,5 @@
 # UTTS
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/arch1baald/utts/blob/main/example.ipynb?target=_blank)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/arch1baald/utts/blob/main/examples/example.ipynb)
 
 Universal interface to test and compare text-to-speech models. Currently supports:
 - [OpenAI TTS](https://platform.openai.com/docs/guides/text-to-speech)
@@ -34,7 +34,7 @@ Obtain API keys for the services you want to use:
 
 The simplest way to get started is to open the notebook in Colab:
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/arch1baald/utts/blob/main/example.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/arch1baald/utts/blob/main/examples/example.ipynb)
 
 
 Or test from Jupyter Notebook:
