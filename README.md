@@ -1,7 +1,7 @@
 # CTTS
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/arch1baald/ctts/blob/main/example.ipynb?target=_blank)
 
-Compare different text-to-speech models:
+Compare different text-to-speech models. Currently supports:
 - [OpenAI TTS](https://platform.openai.com/docs/guides/text-to-speech)
 - [ElevenLabs](https://elevenlabs.io/)
 - [Kokoro](https://replicate.com/cjwbw/kokoro)
@@ -17,6 +17,14 @@ Compare different text-to-speech models:
 pip install --upgrade git+https://github.com/arch1baald/ctts.git
 ```
 
+Obtain API keys for the services you want to use:
+- [OpenAI](https://platform.openai.com/settings/api-keys)
+- [ElevenLabs](https://elevenlabs.io/app/settings/api-keys)
+- [Replicate](https://replicate.com/account/api-tokens) (for Kokoro and Orpheus)
+- [Zyphra/Zonos](https://playground.zyphra.com/settings/api-keys)
+- [Hume AI](https://platform.hume.ai/settings/keys)
+- [Cartesia](https://play.cartesia.ai/keys)
+
 ## Quick Start
 
 The simplest way to get started is to open the notebook in Colab:
@@ -24,7 +32,7 @@ The simplest way to get started is to open the notebook in Colab:
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/arch1baald/ctts/blob/main/example.ipynb?target=_blank)
 
 
-From Jupyter:
+Or test from Jupyter Notebook:
 ```python
 import os
 from IPython.display import Audio
