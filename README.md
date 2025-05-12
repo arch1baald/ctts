@@ -17,7 +17,7 @@ Universal interface to test and compare text-to-speech models. Currently support
 pip install utts
 ```
 
-or install from source:
+To install the latest development version, use:
 ```bash
 pip install --upgrade git+https://github.com/arch1baald/utts.git
 ```
@@ -39,14 +39,16 @@ The simplest way to get started is to open the notebook in Colab:
 
 Or test from Jupyter Notebook:
 ```python
-import os
 from IPython.display import Audio
-import utts.openai
 
-os.environ["OPENAI__API_KEY"] = "<openai-api-key>"
-audio = utts.openai.generate('Hello, world!', 'echo')
+import utts
+
+client = utts.UTTSClient(elevenlabs_api_key="your_elevenlabs_api_key")
+audio = client.elevenlabs.generate('Hello, world!')
 Audio(audio)
 ```
+
+For batch generation use `utts.utils.batch_generate`.
 
 ## Development
 
