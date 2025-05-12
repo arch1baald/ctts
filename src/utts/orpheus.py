@@ -1,8 +1,9 @@
 from enum import Enum
+from typing import cast
 
 from timeout_function_decorator import timeout
 
-from utts.config import TIMEOUT
+from utts.base import ProviderClient
 from utts.replicate import run
 from utts.utils import convert_to_enum
 
@@ -37,87 +38,94 @@ class EmotiveTags(str, Enum):
     GASP = "`<gasp>`"
 
 
-@timeout(TIMEOUT)
-def generate(
-    text: str,
-    speaker: Voice | str = Voice.TARA,
-    model: Model | str = Model.ORPHEUS_3B,
-    language: str = "en",
-    top_p: float = 0.95,
-    top_k: int = 50,
-    temperature: float = 0.6,
-    max_new_tokens: int = 1200,
-    repetition_penalty: float = 1.1,
-    duration_scale: float = 1.0,
-    output_format: str = "mp3",
-) -> bytes:
-    """
-    Generates audio from text using the Orpheus TTS model via Replicate.
+class OrpheusClient(ProviderClient):
+    """Orpheus text-to-speech API client."""
 
-    Args:
-        text: Text to convert to speech
-        speaker: Speaker type (male, female, or tara)
-        model: TTS model to use
-        language: Language code
-        top_p: Top-p sampling parameter
-        top_k: Top-k sampling parameter
-        temperature: Temperature for sampling
-        max_new_tokens: Maximum number of new tokens to generate
-        repetition_penalty: Penalty for repetition
-        duration_scale: Speech duration scaling factor
-        output_format: Output format (mp3 or wav)
+    def __init__(self, api_key: str, timeout: float):
+        self.api_key = api_key
+        self.timeout = timeout
 
-    Returns:
-        Audio data as bytes
-    """
-    speaker_str = convert_to_enum(Voice, speaker).value
-    model_str = convert_to_enum(Model, model).value
-    input_data = {
-        "text": text,
-        "speaker": speaker_str,
-        "language": language,
-        "top_p": top_p,
-        "top_k": top_k,
-        "temperature": temperature,
-        "max_new_tokens": max_new_tokens,
-        "repetition_penalty": repetition_penalty,
-        "duration_scale": duration_scale,
-        "output_format": output_format,
-    }
-    return run(model_str, input_data)
+    def get_client(self, api_key: str) -> None:
+        # Orpheus uses Replicate API and doesn't need a dedicated client
+        return None
 
+    def generate(
+        self,
+        text: str,
+        speaker: Voice | str = Voice.TARA,
+        model: Model | str = Model.ORPHEUS_3B,
+        language: str = "en",
+        top_p: float = 0.95,
+        top_k: int = 50,
+        temperature: float = 0.6,
+        max_new_tokens: int = 1200,
+        repetition_penalty: float = 1.1,
+        duration_scale: float = 1.0,
+        output_format: str = "mp3",
+    ) -> bytes:
+        """
+        Generates audio from text using the Orpheus TTS model via Replicate.
 
-@timeout(TIMEOUT)
-async def agenerate(
-    text: str,
-    speaker: Voice | str = Voice.TARA,
-    model: Model | str = Model.ORPHEUS_3B,
-    language: str = "en",
-    top_p: float = 0.95,
-    top_k: int = 50,
-    temperature: float = 0.6,
-    max_new_tokens: int = 1200,
-    repetition_penalty: float = 1.1,
-    duration_scale: float = 1.0,
-    output_format: str = "mp3",
-) -> bytes:
-    """
-    Asynchronous version of generate (currently implemented synchronously).
+        Args:
+            text: Text to convert to speech
+            speaker: Speaker type (male, female, or tara)
+            model: TTS model to use
+            language: Language code
+            top_p: Top-p sampling parameter
+            top_k: Top-k sampling parameter
+            temperature: Temperature for sampling
+            max_new_tokens: Maximum number of new tokens to generate
+            repetition_penalty: Penalty for repetition
+            duration_scale: Speech duration scaling factor
+            output_format: Output format (mp3 or wav)
 
-    See generate() for parameter details.
-    """
-    # For now, this is just a wrapper around the synchronous function
-    # In the future, this could be updated to use async features
-    return generate(
-        text=text,
-        speaker=speaker,
-        model=model,
-        language=language,
-        top_p=top_p,
-        top_k=top_k,
-        temperature=temperature,
-        max_new_tokens=max_new_tokens,
-        repetition_penalty=repetition_penalty,
-        duration_scale=duration_scale,
-        output_format=output_format,
-    )
+        Returns:
+            Audio data as bytes
+        """
+        timed_func = timeout(self.timeout)(self._generate)
+        return cast(
+            bytes,
+            timed_func(
+                text,
+                speaker,
+                model,
+                language,
+                top_p,
+                top_k,
+                temperature,
+                max_new_tokens,
+                repetition_penalty,
+                duration_scale,
+                output_format,
+            ),
+        )
+
+    def _generate(
+        self,
+        text: str,
+        speaker: Voice | str = Voice.TARA,
+        model: Model | str = Model.ORPHEUS_3B,
+        language: str = "en",
+        top_p: float = 0.95,
+        top_k: int = 50,
+        temperature: float = 0.6,
+        max_new_tokens: int = 1200,
+        repetition_penalty: float = 1.1,
+        duration_scale: float = 1.0,
+        output_format: str = "mp3",
+    ) -> bytes:
+        speaker_str = convert_to_enum(Voice, speaker).value
+        model_str = convert_to_enum(Model, model).value
+        input_data = {
+            "text": text,
+            "speaker": speaker_str,
+            "language": language,
+            "top_p": top_p,
+            "top_k": top_k,
+            "temperature": temperature,
+            "max_new_tokens": max_new_tokens,
+            "repetition_penalty": repetition_penalty,
+            "duration_scale": duration_scale,
+            "output_format": output_format,
+        }
+        return run(self.api_key, model_str, input_data)
