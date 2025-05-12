@@ -1,16 +1,16 @@
 import wave
 from enum import Enum
-from functools import lru_cache
 from io import BytesIO
-from typing import BinaryIO, List, Optional, Union
+from typing import BinaryIO, List, Optional, Union, cast
 
 import numpy as np
 from cartesia import AsyncCartesia, Cartesia
 from pydantic import BaseModel
 from timeout_function_decorator import timeout
 
-from utts.config import MAXHITS, TIMEOUT, get_settings
 from utts.utils import convert_to_enum
+
+from .base import ProviderClient
 
 
 class Model(str, Enum):
@@ -349,142 +349,6 @@ class Voice(str, Enum):
     JACQUELINE = "9626c31c-bec5-4cca-baa8-f8ba9e84c8bc"
 
 
-@lru_cache(MAXHITS)
-def get_client() -> Cartesia:
-    """Returns a Cartesia client."""
-
-    settings = get_settings().cartesia
-    assert settings is not None, "Cartesia settings are not configured"
-
-    return Cartesia(api_key=settings.api_key)
-
-
-@lru_cache(MAXHITS)
-def get_async_client() -> AsyncCartesia:
-    """Returns an async Cartesia client."""
-
-    settings = get_settings().cartesia
-    assert settings is not None, "Cartesia settings are not configured"
-
-    return AsyncCartesia(api_key=settings.api_key)
-
-
-@timeout(TIMEOUT)
-def generate(
-    text: str,
-    model: Union[Model, str] = Model.SONIC_2,
-    language: Union[Language, str] = Language.ENGLISH,
-    voice: Union[Voice, str] = Voice.SARAH,
-    voice_audio: Optional[Union[bytes, BinaryIO]] = None,
-    duration: Optional[float] = None,
-) -> bytes:
-    """
-    Generates audio from text using Cartesia TTS API.
-
-    Args:
-        text: Text to convert to speech
-        model: TTS model to use (sonic-2, sonic-turbo, sonic)
-        language: Language code (en, fr, de, etc.)
-        voice: Voice to use (enum or ID string)
-        voice_audio: Audio sample for voice cloning
-        duration: Target duration in seconds for the generated audio
-
-    Returns:
-        Audio data as bytes
-    """
-    client = get_client()
-    model_enum = convert_to_enum(Model, model)
-    language_enum = convert_to_enum(Language, language)
-
-    params = {
-        "model_id": model_enum.value,
-        "transcript": text,
-        "language": language_enum.value,
-        "output_format": {
-            "container": "wav",
-            "sample_rate": 44100,
-            "encoding": "pcm_f32le",
-        },
-    }
-
-    # Add voice - required parameter
-    if voice_audio:
-        params["voice"] = {"audio": voice_audio}
-    else:
-        # Use voice enum or string
-        voice_enum = convert_to_enum(Voice, voice)
-        params["voice"] = {"id": voice_enum.value}
-
-    # Add duration parameter if specified
-    if duration is not None:
-        params["duration"] = duration
-
-    # Collect bytes from iterator
-    output = BytesIO()
-    for chunk in client.tts.bytes(**params):
-        output.write(chunk)
-
-    return output.getvalue()
-
-
-@timeout(TIMEOUT)
-async def agenerate(
-    text: str,
-    model: Union[Model, str] = Model.SONIC_2,
-    language: Union[Language, str] = Language.ENGLISH,
-    voice: Union[Voice, str] = Voice.SARAH,
-    voice_audio: Optional[Union[bytes, BinaryIO]] = None,
-    duration: Optional[float] = None,
-) -> bytes:
-    """
-    Asynchronously generates audio from text using Cartesia TTS API.
-
-    Args:
-        text: Text to convert to speech
-        model: TTS model to use (sonic-2, sonic-turbo, sonic)
-        language: Language code (en, fr, de, etc.)
-        voice: Voice to use (enum or ID string)
-        voice_audio: Audio sample for voice cloning
-        duration: Target duration in seconds for the generated audio
-
-    Returns:
-        Audio data as bytes
-    """
-    client = get_async_client()
-    model_enum = convert_to_enum(Model, model)
-    language_enum = convert_to_enum(Language, language)
-
-    params = {
-        "model_id": model_enum.value,
-        "transcript": text,
-        "language": language_enum.value,
-        "output_format": {
-            "container": "wav",
-            "sample_rate": 44100,
-            "encoding": "pcm_f32le",
-        },
-    }
-
-    # Add voice - required parameter
-    if voice_audio:
-        params["voice"] = {"audio": voice_audio}
-    else:
-        # Use voice enum or string
-        voice_enum = convert_to_enum(Voice, voice)
-        params["voice"] = {"id": voice_enum.value}
-
-    # Add duration parameter if specified
-    if duration is not None:
-        params["duration"] = duration
-
-    # Collect bytes from async iterator
-    output = BytesIO()
-    async for chunk in client.tts.bytes(**params):
-        output.write(chunk)
-
-    return output.getvalue()
-
-
 def _wrap_pcm_f32_to_wav(raw_data: bytes, sample_rate: int = 44100) -> bytes:
     """
     Convert raw PCM float32 data to WAV with PCM S16LE encoding.
@@ -517,73 +381,226 @@ class TTSWithTimestampsResponse(BaseModel):
     phoneme_ends: List[float]
 
 
-@timeout(TIMEOUT)
-async def agenerate_with_timestamps(
-    text: str,
-    model: Union[Model, str] = Model.SONIC_2,
-    language: Union[Language, str] = Language.ENGLISH,
-    voice: Union[Voice, str] = Voice.SARAH,
-    voice_audio: Optional[Union[bytes, BinaryIO]] = None,
-) -> TTSWithTimestampsResponse:
-    """
-    Asynchronously generates audio and returns a Pydantic object with WAV bytes,
-    word-level and phoneme-level timestamps.
+class CartesiaClient(ProviderClient):
+    """Cartesia text-to-speech API client."""
 
-    Args:
-        text: Text to convert to speech
-        model: TTS model to use (sonic-2, sonic-turbo, sonic)
-        language: Language code (en, fr, de, etc.)
-        voice: Voice to use (enum or ID string)
-        voice_audio: Audio sample for voice cloning
-    """
-    client = get_async_client()
-    model_enum = convert_to_enum(Model, model)
-    language_enum = convert_to_enum(Language, language)
-    voice_enum = convert_to_enum(Voice, voice)
+    def __init__(self, api_key: str, timeout: float):
+        self.api_key = api_key
+        self.timeout = timeout
+        self.client = self.get_client()
+        self.aclient = self.get_async_client()
 
-    ws = await client.tts.websocket()
-    params = {
-        "model_id": model_enum.value,
-        "transcript": text,
-        "language": language_enum.value,
-        "voice": {"audio": voice_audio} if voice_audio else {"id": voice_enum.value},
-        "output_format": {"container": "raw", "encoding": "pcm_f32le", "sample_rate": 44100},
-        "add_timestamps": True,
-        "add_phoneme_timestamps": True,
-        "stream": True,
-    }
+    def get_client(self) -> Cartesia:
+        return Cartesia(api_key=self.api_key)
 
-    stream = await ws.send(**params)
-    audio_chunks: List[bytes] = []
-    words: List[str] = []
-    word_starts: List[float] = []
-    word_ends: List[float] = []
-    phonemes: List[str] = []
-    phoneme_starts: List[float] = []
-    phoneme_ends: List[float] = []
+    def get_async_client(self) -> AsyncCartesia:
+        return AsyncCartesia(api_key=self.api_key)
 
-    async for out in stream:  # type: ignore
-        if out.audio:
-            audio_chunks.append(out.audio)
-        if out.word_timestamps:
-            words.extend(out.word_timestamps.words)
-            word_starts.extend(out.word_timestamps.start)
-            word_ends.extend(out.word_timestamps.end)
-        if hasattr(out, "phoneme_timestamps") and out.phoneme_timestamps:
-            phonemes.extend(out.phoneme_timestamps.phonemes)
-            phoneme_starts.extend(out.phoneme_timestamps.start)
-            phoneme_ends.extend(out.phoneme_timestamps.end)
+    def generate(
+        self,
+        text: str,
+        model: Union[Model, str] = Model.SONIC_2,
+        language: Union[Language, str] = Language.ENGLISH,
+        voice: Union[Voice, str] = Voice.SARAH,
+        voice_audio: Optional[Union[bytes, BinaryIO]] = None,
+        duration: Optional[float] = None,
+    ) -> bytes:
+        """
+        Generates audio from text using Cartesia TTS API.
 
-    await ws.close()
-    raw = b"".join(audio_chunks)
-    wav = _wrap_pcm_f32_to_wav(raw)
+        Args:
+            text: Text to convert to speech
+            model: TTS model to use (sonic-2, sonic-turbo, sonic)
+            language: Language code (en, fr, de, etc.)
+            voice: Voice to use (enum or ID string)
+            voice_audio: Audio sample for voice cloning
+            duration: Target duration in seconds for the generated audio
 
-    return TTSWithTimestampsResponse(
-        audio=wav,
-        words=words,
-        word_starts=word_starts,
-        word_ends=word_ends,
-        phonemes=phonemes,
-        phoneme_starts=phoneme_starts,
-        phoneme_ends=phoneme_ends,
-    )
+        Returns:
+            Audio data as bytes
+        """
+        timed_func = timeout(self.timeout)(self._generate)
+        return cast(bytes, timed_func(text, model, language, voice, voice_audio, duration))
+
+    def _generate(
+        self,
+        text: str,
+        model: Union[Model, str] = Model.SONIC_2,
+        language: Union[Language, str] = Language.ENGLISH,
+        voice: Union[Voice, str] = Voice.SARAH,
+        voice_audio: Optional[Union[bytes, BinaryIO]] = None,
+        duration: Optional[float] = None,
+    ) -> bytes:
+        client = self.client
+        model_enum = convert_to_enum(Model, model)
+        language_enum = convert_to_enum(Language, language)
+
+        params = {
+            "model_id": model_enum.value,
+            "transcript": text,
+            "language": language_enum.value,
+            "output_format": {
+                "container": "wav",
+                "sample_rate": 44100,
+                "encoding": "pcm_f32le",
+            },
+        }
+
+        # Add voice - required parameter
+        if voice_audio:
+            params["voice"] = {"audio": voice_audio}
+        else:
+            # Use voice enum or string
+            voice_enum = convert_to_enum(Voice, voice)
+            params["voice"] = {"id": voice_enum.value}
+
+        # Add duration parameter if specified
+        if duration is not None:
+            params["duration"] = duration
+
+        # Collect bytes from iterator
+        output = BytesIO()
+        for chunk in client.tts.bytes(**params):
+            output.write(chunk)
+
+        return output.getvalue()
+
+    async def agenerate(
+        self,
+        text: str,
+        model: Union[Model, str] = Model.SONIC_2,
+        language: Union[Language, str] = Language.ENGLISH,
+        voice: Union[Voice, str] = Voice.SARAH,
+        voice_audio: Optional[Union[bytes, BinaryIO]] = None,
+        duration: Optional[float] = None,
+    ) -> bytes:
+        """
+        Asynchronously generates audio from text using Cartesia TTS API.
+
+        Args:
+            text: Text to convert to speech
+            model: TTS model to use (sonic-2, sonic-turbo, sonic)
+            language: Language code (en, fr, de, etc.)
+            voice: Voice to use (enum or ID string)
+            voice_audio: Audio sample for voice cloning
+            duration: Target duration in seconds for the generated audio
+
+        Returns:
+            Audio data as bytes
+        """
+        timed_func = timeout(self.timeout)(self._agenerate)
+        return cast(bytes, timed_func(text, model, language, voice, voice_audio, duration))
+
+    async def _agenerate(
+        self,
+        text: str,
+        model: Union[Model, str] = Model.SONIC_2,
+        language: Union[Language, str] = Language.ENGLISH,
+        voice: Union[Voice, str] = Voice.SARAH,
+        voice_audio: Optional[Union[bytes, BinaryIO]] = None,
+        duration: Optional[float] = None,
+    ) -> bytes:
+        client = self.aclient
+        model_enum = convert_to_enum(Model, model)
+        language_enum = convert_to_enum(Language, language)
+
+        params = {
+            "model_id": model_enum.value,
+            "transcript": text,
+            "language": language_enum.value,
+            "output_format": {
+                "container": "wav",
+                "sample_rate": 44100,
+                "encoding": "pcm_f32le",
+            },
+        }
+
+        # Add voice - required parameter
+        if voice_audio:
+            params["voice"] = {"audio": voice_audio}
+        else:
+            # Use voice enum or string
+            voice_enum = convert_to_enum(Voice, voice)
+            params["voice"] = {"id": voice_enum.value}
+
+        # Add duration parameter if specified
+        if duration is not None:
+            params["duration"] = duration
+
+        # Collect bytes from async iterator
+        output = BytesIO()
+        async for chunk in client.tts.bytes(**params):
+            output.write(chunk)
+
+        return output.getvalue()
+
+    async def agenerate_with_timestamps(
+        self,
+        text: str,
+        model: Union[Model, str] = Model.SONIC_2,
+        language: Union[Language, str] = Language.ENGLISH,
+        voice: Union[Voice, str] = Voice.SARAH,
+        voice_audio: Optional[Union[bytes, BinaryIO]] = None,
+    ) -> TTSWithTimestampsResponse:
+        """
+        Asynchronously generates audio and returns a Pydantic object with WAV bytes,
+        word-level and phoneme-level timestamps.
+
+        Args:
+            text: Text to convert to speech
+            model: TTS model to use (sonic-2, sonic-turbo, sonic)
+            language: Language code (en, fr, de, etc.)
+            voice: Voice to use (enum or ID string)
+            voice_audio: Audio sample for voice cloning
+        """
+        client = self.aclient
+        model_enum = convert_to_enum(Model, model)
+        language_enum = convert_to_enum(Language, language)
+        voice_enum = convert_to_enum(Voice, voice)
+
+        ws = await client.tts.websocket()
+        params = {
+            "model_id": model_enum.value,
+            "transcript": text,
+            "language": language_enum.value,
+            "voice": {"audio": voice_audio} if voice_audio else {"id": voice_enum.value},
+            "output_format": {"container": "raw", "encoding": "pcm_f32le", "sample_rate": 44100},
+            "add_timestamps": True,
+            "add_phoneme_timestamps": True,
+            "stream": True,
+        }
+
+        stream = await ws.send(**params)
+        audio_chunks: List[bytes] = []
+        words: List[str] = []
+        word_starts: List[float] = []
+        word_ends: List[float] = []
+        phonemes: List[str] = []
+        phoneme_starts: List[float] = []
+        phoneme_ends: List[float] = []
+
+        async for out in stream:  # type: ignore
+            if out.audio:
+                audio_chunks.append(out.audio)
+            if out.word_timestamps:
+                words.extend(out.word_timestamps.words)
+                word_starts.extend(out.word_timestamps.start)
+                word_ends.extend(out.word_timestamps.end)
+            if hasattr(out, "phoneme_timestamps") and out.phoneme_timestamps:
+                phonemes.extend(out.phoneme_timestamps.phonemes)
+                phoneme_starts.extend(out.phoneme_timestamps.start)
+                phoneme_ends.extend(out.phoneme_timestamps.end)
+
+        await ws.close()
+        raw = b"".join(audio_chunks)
+        wav = _wrap_pcm_f32_to_wav(raw)
+
+        return TTSWithTimestampsResponse(
+            audio=wav,
+            words=words,
+            word_starts=word_starts,
+            word_ends=word_ends,
+            phonemes=phonemes,
+            phoneme_starts=phoneme_starts,
+            phoneme_ends=phoneme_ends,
+        )

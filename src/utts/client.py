@@ -1,3 +1,4 @@
+from .cartesia import CartesiaClient
 from .elevenlabs import ElevenLabsClient
 from .hume import HumeProviderClient
 from .kokoro import KokoroClient
@@ -27,3 +28,4 @@ class UTTSClient:
         self.orpheus = OrpheusClient(api_key=replicate_api_key, timeout=timeout) if replicate_api_key else None
         self.zyphra = ZyphraClient(api_key=zyphra_api_key, timeout=timeout) if zyphra_api_key else None
         self.hume = HumeProviderClient(api_key=hume_api_key, timeout=timeout) if hume_api_key else None
+        self.cartesia = CartesiaClient(api_key=cartesia_api_key, timeout=timeout) if cartesia_api_key else None
