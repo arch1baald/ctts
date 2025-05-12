@@ -1,3 +1,4 @@
+import logging
 from enum import Enum
 from io import BytesIO
 from typing import cast
@@ -8,6 +9,8 @@ from timeout_function_decorator import timeout
 
 from .base import ProviderClient
 from .utils import convert_to_enum
+
+logger = logging.getLogger(__name__)
 
 
 class Voice(str, Enum):
@@ -81,6 +84,16 @@ class ElevenLabsClient(ProviderClient):
         Returns:
             Audio data as bytes
         """
+        logger.debug(
+            "elevenlabs.generate(text=%s, voice=%s, model=%s, stability=%s, similarity_boost=%s, style=%s, use_speaker_boost=%s)",  # noqa: E501
+            text,
+            voice,
+            model,
+            stability,
+            similarity_boost,
+            style,
+            use_speaker_boost,
+        )
         timed_func = timeout(self.timeout)(self._generate)
         return cast(
             bytes,

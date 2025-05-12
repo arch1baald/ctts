@@ -1,3 +1,4 @@
+import logging
 import wave
 from enum import Enum
 from io import BytesIO
@@ -10,6 +11,8 @@ from timeout_function_decorator import timeout
 
 from .base import ProviderClient
 from .utils import convert_to_enum
+
+logger = logging.getLogger(__name__)
 
 
 class Model(str, Enum):
@@ -418,6 +421,15 @@ class CartesiaClient(ProviderClient):
         Returns:
             Audio data as bytes
         """
+        logger.debug(
+            "cartesia.generate(text=%s, model=%s, language=%s, voice=%s, voice_audio=%s, duration=%s)",
+            text,
+            model,
+            language,
+            voice,
+            voice_audio,
+            duration,
+        )
         timed_func = timeout(self.timeout)(self._generate)
         return cast(bytes, timed_func(text, model, language, voice, voice_audio, duration))
 
@@ -487,6 +499,15 @@ class CartesiaClient(ProviderClient):
         Returns:
             Audio data as bytes
         """
+        logger.debug(
+            "cartesia.agenerate(text=%s, model=%s, language=%s, voice=%s, voice_audio=%s, duration=%s)",
+            text,
+            model,
+            language,
+            voice,
+            voice_audio,
+            duration,
+        )
         timed_func = timeout(self.timeout)(self._agenerate)
         return cast(bytes, timed_func(text, model, language, voice, voice_audio, duration))
 
@@ -552,6 +573,14 @@ class CartesiaClient(ProviderClient):
             voice: Voice to use (enum or ID string)
             voice_audio: Audio sample for voice cloning
         """
+        logger.debug(
+            "cartesia.agenerate_with_timestamps(text=%s, model=%s, language=%s, voice=%s, voice_audio=%s)",
+            text,
+            model,
+            language,
+            voice,
+            voice_audio,
+        )
         client = self.aclient
         model_enum = convert_to_enum(Model, model)
         language_enum = convert_to_enum(Language, language)

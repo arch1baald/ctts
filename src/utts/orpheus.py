@@ -1,3 +1,4 @@
+import logging
 from enum import Enum
 from typing import cast
 
@@ -6,6 +7,8 @@ from timeout_function_decorator import timeout
 from .base import ProviderClient
 from .replicate import run
 from .utils import convert_to_enum
+
+logger = logging.getLogger(__name__)
 
 
 class Voice(str, Enum):
@@ -82,6 +85,20 @@ class OrpheusClient(ProviderClient):
         Returns:
             Audio data as bytes
         """
+        logger.debug(
+            "orpheus.generate(text=%s, speaker=%s, model=%s, language=%s, top_p=%s, top_k=%s, temperature=%s, max_new_tokens=%s, repetition_penalty=%s, duration_scale=%s, output_format=%s)",  # noqa: E501
+            text,
+            speaker,
+            model,
+            language,
+            top_p,
+            top_k,
+            temperature,
+            max_new_tokens,
+            repetition_penalty,
+            duration_scale,
+            output_format,
+        )
         timed_func = timeout(self.timeout)(self._generate)
         return cast(
             bytes,

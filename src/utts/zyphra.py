@@ -1,3 +1,4 @@
+import logging
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, Optional, Union, cast
@@ -7,6 +8,8 @@ from zyphra import ZyphraClient as ZyphraAPI
 
 from .base import ProviderClient
 from .utils import convert_to_enum
+
+logger = logging.getLogger(__name__)
 
 
 class Voice(str, Enum):
@@ -100,6 +103,22 @@ class ZyphraClient(ProviderClient):
         Returns:
             Audio data as bytes
         """
+        logger.debug(
+            "zyphra.generate(text=%s, voice=%s, model=%s, language=%s, speaking_rate=%s, pitch_std=%s, mime_type=%s, speaker_audio=%s, voice_name=%s, fmax=%s, emotion=%s, speaker_noised=%s, vqscore=%s)",  # noqa: E501
+            text,
+            voice,
+            model,
+            language,
+            speaking_rate,
+            pitch_std,
+            mime_type,
+            speaker_audio is not None,
+            voice_name,
+            fmax,
+            emotion,
+            speaker_noised,
+            vqscore,
+        )
         timed_func = timeout(self.timeout)(self._generate)
         return cast(
             bytes,
