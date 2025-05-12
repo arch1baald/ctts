@@ -3,9 +3,9 @@ from typing import Optional, cast
 
 from timeout_function_decorator import timeout
 
-from utts.base import ProviderClient
-from utts.replicate import run
-from utts.utils import convert_to_enum
+from .base import ProviderClient
+from .replicate import run
+from .utils import convert_to_enum
 
 
 class Voice(str, Enum):

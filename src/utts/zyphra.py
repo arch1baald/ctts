@@ -5,8 +5,8 @@ from typing import Any, Dict, Optional, Union, cast
 from timeout_function_decorator import timeout
 from zyphra import ZyphraClient as ZyphraAPI
 
-from utts.base import ProviderClient
-from utts.utils import convert_to_enum
+from .base import ProviderClient
+from .utils import convert_to_enum
 
 
 class Voice(str, Enum):
