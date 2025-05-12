@@ -51,6 +51,7 @@ exclude = ["venv*", ".venv*", ".git", "adhoc"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "ANN"]
 ignore = [
+    "ANN101",  # Missing type annotation for `self` in method
     "ANN204",  # Missing return type annotation for special method `__*__`
     "ANN401",  # Dynamically typed expressions (Any) are disallowed
 ]
