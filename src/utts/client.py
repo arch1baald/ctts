@@ -10,7 +10,36 @@ DEFAULT_TIMEOUT = 10
 
 
 class UTTSClient:
-    """Universal text-to-speech client."""
+    """
+    Universal text-to-speech client.
+
+    Args:
+        openai_api_key: OpenAI API key
+        elevenlabs_api_key: ElevenLabs API key
+        replicate_api_key: Replicate API key
+        zyphra_api_key: Zyphra API key
+        hume_api_key: Hume API key
+        cartesia_api_key: Cartesia API key
+        timeout: Timeout for API calls
+
+    Obtain API keys for the services you want to use:
+    - [OpenAI](https://platform.openai.com/settings/api-keys)
+    - [ElevenLabs](https://elevenlabs.io/app/settings/api-keys)
+    - [Replicate](https://replicate.com/account/api-tokens) (for Kokoro and Orpheus)
+    - [Zyphra/Zonos](https://playground.zyphra.com/settings/api-keys)
+    - [Hume AI](https://platform.hume.ai/settings/keys)
+    - [Cartesia](https://play.cartesia.ai/keys)
+
+    Example:
+    ```python
+    from utts import UTTSClient
+
+    client = UTTSClient(
+        openai_api_key="your_openai_api_key",
+    )
+    audio = client.elevenlabs.generate('Hello, world!')
+    ```
+    """
 
     def __init__(
         self,
