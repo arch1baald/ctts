@@ -6,8 +6,8 @@ from elevenlabs import VoiceSettings
 from elevenlabs.client import ElevenLabs
 from timeout_function_decorator import timeout
 
-from utts.base import ProviderClient
-from utts.utils import convert_to_enum
+from .base import ProviderClient
+from .utils import convert_to_enum
 
 
 class Voice(str, Enum):

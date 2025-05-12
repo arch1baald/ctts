@@ -6,8 +6,8 @@ from hume import HumeClient
 from hume.tts import FormatPcm, PostedContextWithGenerationId, PostedUtterance, PostedUtteranceVoiceWithName
 from timeout_function_decorator import timeout
 
-from utts.base import ProviderClient
-from utts.utils import convert_to_enum
+from .base import ProviderClient
+from .utils import convert_to_enum
 
 
 class Format(str, Enum):

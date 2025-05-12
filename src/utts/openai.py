@@ -4,7 +4,7 @@ from typing import cast
 from openai import OpenAI
 from timeout_function_decorator import timeout
 
-from utts.base import ProviderClient
+from .base import ProviderClient
 
 
 class Voice(str, Enum):
