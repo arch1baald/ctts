@@ -440,57 +440,6 @@ wheels = [
 ]
 
 [[package]]
-name = "utts"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "cartesia" },
-    { name = "elevenlabs" },
-    { name = "hume" },
-    { name = "nest-asyncio" },
-    { name = "openai" },
-    { name = "pandas" },
-    { name = "pydantic" },
-    { name = "pydantic-settings" },
-    { name = "replicate" },
-    { name = "timeout-function-decorator" },
-    { name = "zyphra" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "jupyterlab" },
-    { name = "nbstripout" },
-    { name = "pre-commit" },
-    { name = "pyright" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "cartesia", specifier = ">=2.0.2" },
-    { name = "elevenlabs", specifier = ">=1.57.0" },
-    { name = "hume", specifier = ">=0.8.3" },
-    { name = "nest-asyncio", specifier = ">=1.6.0" },
-    { name = "openai", specifier = ">=1.76.2" },
-    { name = "pandas", specifier = ">=2.2.2" },
-    { name = "pydantic", specifier = ">=2.11.4" },
-    { name = "pydantic-settings", specifier = ">=2.9.1" },
-    { name = "replicate", specifier = ">=1.0.6" },
-    { name = "timeout-function-decorator", specifier = ">=2.0.0" },
-    { name = "zyphra", specifier = ">=0.1.6" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "jupyterlab", specifier = ">=4.4.1" },
-    { name = "nbstripout", specifier = ">=0.8.1" },
-    { name = "pre-commit", specifier = ">=4.2.0" },
-    { name = "pyright", specifier = ">=1.1.400" },
-    { name = "ruff", specifier = ">=0.11.8" },
-]
-
-[[package]]
 name = "debugpy"
 version = "1.8.14"
 source = { registry = "https://pypi.org/simple" }
@@ -2323,6 +2272,57 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/8a/78/16493d9c386d8e60e442a35feac5e00f0913c0f4b7c217c11e8ec2ff53e0/urllib3-2.4.0.tar.gz", hash = "sha256:414bc6535b787febd7567804cc015fee39daab8ad86268f1310a9250697de466", size = 390672, upload-time = "2025-04-10T15:23:39.232Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/6b/11/cc635220681e93a0183390e26485430ca2c7b5f9d33b15c74c2861cb8091/urllib3-2.4.0-py3-none-any.whl", hash = "sha256:4e16665048960a0900c702d4a66415956a584919c03361cac9f1df5c5dd7e813", size = 128680, upload-time = "2025-04-10T15:23:37.377Z" },
+]
+
+[[package]]
+name = "utts"
+version = "0.1.1"
+source = { editable = "." }
+dependencies = [
+    { name = "cartesia" },
+    { name = "elevenlabs" },
+    { name = "hume" },
+    { name = "nest-asyncio" },
+    { name = "openai" },
+    { name = "pandas" },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
+    { name = "replicate" },
+    { name = "timeout-function-decorator" },
+    { name = "zyphra" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "jupyterlab" },
+    { name = "nbstripout" },
+    { name = "pre-commit" },
+    { name = "pyright" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "cartesia", specifier = ">=2.0.2" },
+    { name = "elevenlabs", specifier = ">=1.57.0" },
+    { name = "hume", specifier = ">=0.8.3" },
+    { name = "nest-asyncio", specifier = ">=1.6.0" },
+    { name = "openai", specifier = ">=1.76.2" },
+    { name = "pandas", specifier = ">=2.2.2" },
+    { name = "pydantic", specifier = ">=2.11.4" },
+    { name = "pydantic-settings", specifier = ">=2.9.1" },
+    { name = "replicate", specifier = ">=1.0.6" },
+    { name = "timeout-function-decorator", specifier = ">=2.0.0" },
+    { name = "zyphra", specifier = ">=0.1.6" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "jupyterlab", specifier = ">=4.4.1" },
+    { name = "nbstripout", specifier = ">=0.8.1" },
+    { name = "pre-commit", specifier = ">=4.2.0" },
+    { name = "pyright", specifier = ">=1.1.400" },
+    { name = "ruff", specifier = ">=0.11.8" },
 ]
 
 [[package]]

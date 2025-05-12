@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import Any
 
@@ -6,6 +7,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT_DIR: Path = Path(__file__).parent.parent.parent.resolve()
 TIMEOUT: int = 10
+
+# 0 means no caching, None means unlimited lru_cache
+MAXHITS: int | None = 0 if os.getenv("CACHE_MAXHITS") != "null" else None
 
 
 class OpenAISettings(BaseModel):

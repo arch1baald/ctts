@@ -7,7 +7,7 @@ from hume import AsyncHumeClient, HumeClient
 from hume.tts import FormatPcm, PostedContextWithGenerationId, PostedUtterance, PostedUtteranceVoiceWithName
 from timeout_function_decorator import timeout
 
-from utts.config import TIMEOUT, get_settings
+from utts.config import MAXHITS, TIMEOUT, get_settings
 from utts.utils import convert_to_enum
 
 
@@ -30,7 +30,7 @@ class EmotionPreset(str, Enum):
     SURPRISED = "surprised"
 
 
-@lru_cache()
+@lru_cache(MAXHITS)
 def get_client() -> HumeClient:
     """Returns a Hume client."""
     settings = get_settings().hume
@@ -38,7 +38,7 @@ def get_client() -> HumeClient:
     return HumeClient(api_key=settings.api_key)
 
 
-@lru_cache()
+@lru_cache(MAXHITS)
 def get_aclient() -> AsyncHumeClient:
     """Returns a Hume client."""
     settings = get_settings().hume

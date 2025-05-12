@@ -4,10 +4,10 @@ from typing import Any, Dict, Iterator
 
 import replicate
 
-from utts.config import get_settings
+from utts.config import MAXHITS, get_settings
 
 
-@lru_cache()
+@lru_cache(MAXHITS)
 def get_client() -> Any:
     """Returns a Replicate client."""
     settings = get_settings().replicate

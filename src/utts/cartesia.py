@@ -9,7 +9,7 @@ from cartesia import AsyncCartesia, Cartesia
 from pydantic import BaseModel
 from timeout_function_decorator import timeout
 
-from utts.config import TIMEOUT, get_settings
+from utts.config import MAXHITS, TIMEOUT, get_settings
 from utts.utils import convert_to_enum
 
 
@@ -349,7 +349,7 @@ class Voice(str, Enum):
     JACQUELINE = "9626c31c-bec5-4cca-baa8-f8ba9e84c8bc"
 
 
-@lru_cache()
+@lru_cache(MAXHITS)
 def get_client() -> Cartesia:
     """Returns a Cartesia client."""
 
@@ -359,7 +359,7 @@ def get_client() -> Cartesia:
     return Cartesia(api_key=settings.api_key)
 
 
-@lru_cache()
+@lru_cache(MAXHITS)
 def get_async_client() -> AsyncCartesia:
     """Returns an async Cartesia client."""
 

@@ -4,7 +4,7 @@ from functools import lru_cache
 from openai import AsyncOpenAI, OpenAI
 from timeout_function_decorator import timeout
 
-from utts.config import TIMEOUT, get_settings
+from utts.config import MAXHITS, TIMEOUT, get_settings
 from utts.utils import convert_to_enum
 
 
@@ -26,7 +26,7 @@ class Model(str, Enum):
     TTS_1_HD = "tts-1-hd"
 
 
-@lru_cache()
+@lru_cache(MAXHITS)
 def get_client() -> OpenAI:
     """Returns a synchronous OpenAI client."""
     settings = get_settings().openai
@@ -34,7 +34,7 @@ def get_client() -> OpenAI:
     return OpenAI(api_key=settings.api_key, organization=settings.organization_id)
 
 
-@lru_cache()
+@lru_cache(MAXHITS)
 def get_aclient() -> AsyncOpenAI:
     """Returns an asynchronous OpenAI client."""
     settings = get_settings().openai

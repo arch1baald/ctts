@@ -6,7 +6,7 @@ from elevenlabs import VoiceSettings
 from elevenlabs.client import ElevenLabs
 from timeout_function_decorator import timeout
 
-from utts.config import TIMEOUT, get_settings
+from utts.config import MAXHITS, TIMEOUT, get_settings
 from utts.utils import convert_to_enum
 
 
@@ -45,7 +45,7 @@ class Model(str, Enum):
     ELEVEN_TURBO_V2 = "eleven_turbo_v2"
 
 
-@lru_cache()
+@lru_cache(MAXHITS)
 def get_client() -> ElevenLabs:
     """Returns an ElevenLabs client."""
     settings = get_settings().elevenlabs

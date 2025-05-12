@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional, Union
 from timeout_function_decorator import timeout
 from zyphra import ZyphraClient
 
-from utts.config import TIMEOUT, get_settings
+from utts.config import MAXHITS, TIMEOUT, get_settings
 from utts.utils import convert_to_enum
 
 
@@ -53,7 +53,7 @@ class MimeType(str, Enum):
     AAC = "audio/aac"
 
 
-@lru_cache()
+@lru_cache(MAXHITS)
 def get_client() -> ZyphraClient:
     """Returns a Zyphra client."""
     settings = get_settings().zyphra
