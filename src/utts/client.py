@@ -1,3 +1,4 @@
+from .elevenlabs import ElevenLabsClient
 from .openai import OpenAIClient
 
 DEFAULT_TIMEOUT = 10
@@ -17,3 +18,4 @@ class UTTSClient:
         timeout: float = DEFAULT_TIMEOUT,
     ) -> None:
         self.openai = OpenAIClient(api_key=openai_api_key, timeout=timeout) if openai_api_key else None
+        self.elevenlabs = ElevenLabsClient(api_key=elevenlabs_api_key, timeout=timeout) if elevenlabs_api_key else None
