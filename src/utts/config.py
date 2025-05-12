@@ -5,11 +5,14 @@ from typing import Any
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-ROOT_DIR: Path = Path(__file__).parent.parent.parent.resolve()
-TIMEOUT: int = 10
+# path to the .env file
+ENV_PATH: Path = Path(os.getenv("UTTS_ENV", ".env"))
 
 # 0 means no caching, None means unlimited lru_cache
-MAXHITS: int | None = 0 if os.getenv("CACHE_MAXHITS") != "null" else None
+MAXHITS: int | None = 0 if os.getenv("UTTS_CACHE_MAXHITS") != "null" else None
+
+# request timeout (default: 10 seconds)
+TIMEOUT: int = int(os.getenv("UTTS_TIMEOUT", 10))
 
 
 class OpenAISettings(BaseModel):
@@ -52,6 +55,8 @@ class CartesiaSettings(BaseModel):
 class Settings(BaseSettings):
     """Main application settings."""
 
+    # TODO: that was probably a mistake. Should have a UTTSClient object instead.
+
     openai: OpenAISettings | None = Field(default=None, description="OpenAI settings")
     elevenlabs: ElevenLabsSettings | None = Field(default=None, description="ElevenLabs settings")
     replicate: ReplicateSettings | None = Field(default=None, description="Replicate settings")
@@ -70,19 +75,12 @@ class Settings(BaseSettings):
     )
 
 
-def get_settings(env_file: str | Path | None = None) -> Settings:
-    """Returns an instance of the application settings.
+def get_settings() -> Settings:
+    """Returns an instance of the application settings."""
+    env_path = Path(ENV_PATH)
 
-    Args:
-        env_file: Path to the .env file. If None, the .env file from the project root will be used.
-    """
-    if env_file is not None:
-        env_path = Path(env_file)
-    else:
-        env_path: Path = ROOT_DIR / ".env"
+    if not env_path.exists():
+        raise FileNotFoundError(f"The file does not exist: {env_path}")
 
-    settings_kwargs: dict[str, Any] = {}
-    if env_path.exists():
-        settings_kwargs["_env_file"] = str(env_path)
-
+    settings_kwargs: dict[str, Any] = {"_env_file": str(env_path)}
     return Settings(**settings_kwargs)
