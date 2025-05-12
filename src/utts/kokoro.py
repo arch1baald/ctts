@@ -1,9 +1,9 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, cast
 
 from timeout_function_decorator import timeout
 
-from utts.config import TIMEOUT
+from utts.base import ProviderClient
 from utts.replicate import run
 from utts.utils import convert_to_enum
 
@@ -82,70 +82,69 @@ class Model(str, Enum):
     KOKORO_82M = "jaaari/kokoro-82m:f559560eb822dc509045f3921a1921234918b91739db4bf3daab2169b71c7a13"
 
 
-@timeout(TIMEOUT)
-def generate(
-    text: str,
-    voice: Voice | str = Voice.AF_NICOLE,
-    model: Model | str = Model.KOKORO_82M,
-    seed: Optional[int] = None,
-    speed: float = 1.0,
-    denoising_strength: float = 0.5,
-    output_format: str = "mp3",
-) -> bytes:
-    """
-    Generates audio from text using the Kokoro TTS model via Replicate.
+class KokoroClient(ProviderClient):
+    """Kokoro text-to-speech API client."""
 
-    Args:
-        text: Text to convert to speech
-        voice: Voice to use
-        model: TTS model to use
-        seed: Random seed for generation
-        speed: Speech speed (default: 1.0)
-        denoising_strength: Denoising strength (0-1)
-        output_format: Output format (mp3 or wav)
+    def __init__(self, api_key: str, timeout: float):
+        self.api_key = api_key
+        self.timeout = timeout
 
-    Returns:
-        Audio data as bytes
-    """
-    voice_str = convert_to_enum(Voice, voice).value
-    model_str = convert_to_enum(Model, model).value
+    def get_client(self) -> None:
+        # Kokoro uses Replicate API and doesn't need a dedicated client
+        return None
 
-    input_data = {
-        "text": text,
-        "voice": voice_str,
-        "speed": speed,
-        "denoising_strength": denoising_strength,
-        "output_format": output_format,
-    }
-    if seed is not None:
-        input_data["seed"] = seed
+    def generate(
+        self,
+        text: str,
+        voice: Voice | str = Voice.AF_NICOLE,
+        model: Model | str = Model.KOKORO_82M,
+        seed: Optional[int] = None,
+        speed: float = 1.0,
+        denoising_strength: float = 0.5,
+        output_format: str = "mp3",
+    ) -> bytes:
+        """
+        Generates audio from text using the Kokoro TTS model via Replicate.
 
-    return run(model_str, input_data)
+        Args:
+            text: Text to convert to speech
+            voice: Voice to use
+            model: TTS model to use
+            seed: Random seed for generation
+            speed: Speech speed (default: 1.0)
+            denoising_strength: Denoising strength (0-1)
+            output_format: Output format (mp3 or wav)
 
+        Returns:
+            Audio data as bytes
+        """
+        timed_func = timeout(self.timeout)(self._generate)
+        return cast(
+            bytes,
+            timed_func(text, voice, model, seed, speed, denoising_strength, output_format),
+        )
 
-@timeout(TIMEOUT)
-async def agenerate(
-    text: str,
-    voice: Voice | str = Voice.AF_NICOLE,
-    model: Model | str = Model.KOKORO_82M,
-    seed: Optional[int] = None,
-    speed: float = 1.0,
-    denoising_strength: float = 0.5,
-    output_format: str = "mp3",
-) -> bytes:
-    """
-    Asynchronous version of generate (currently implemented synchronously).
+    def _generate(
+        self,
+        text: str,
+        voice: Voice | str = Voice.AF_NICOLE,
+        model: Model | str = Model.KOKORO_82M,
+        seed: Optional[int] = None,
+        speed: float = 1.0,
+        denoising_strength: float = 0.5,
+        output_format: str = "mp3",
+    ) -> bytes:
+        voice_str = convert_to_enum(Voice, voice).value
+        model_str = convert_to_enum(Model, model).value
 
-    See generate() for parameter details.
-    """
-    # For now, this is just a wrapper around the synchronous function
-    # In the future, this could be updated to use async features
-    return generate(
-        text=text,
-        voice=voice,
-        model=model,
-        seed=seed,
-        speed=speed,
-        denoising_strength=denoising_strength,
-        output_format=output_format,
-    )
+        input_data = {
+            "text": text,
+            "voice": voice_str,
+            "speed": speed,
+            "denoising_strength": denoising_strength,
+            "output_format": output_format,
+        }
+        if seed is not None:
+            input_data["seed"] = seed
+
+        return run(self.api_key, model_str, input_data)
