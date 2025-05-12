@@ -1,3 +1,4 @@
+import logging
 from enum import Enum
 from typing import Optional, cast
 
@@ -6,6 +7,8 @@ from timeout_function_decorator import timeout
 from .base import ProviderClient
 from .replicate import run
 from .utils import convert_to_enum
+
+logger = logging.getLogger(__name__)
 
 
 class Voice(str, Enum):
@@ -118,6 +121,16 @@ class KokoroClient(ProviderClient):
         Returns:
             Audio data as bytes
         """
+        logger.debug(
+            "kokoro.generate(text=%s, voice=%s, model=%s, seed=%s, speed=%s, denoising_strength=%s, output_format=%s)",
+            text,
+            voice,
+            model,
+            seed,
+            speed,
+            denoising_strength,
+            output_format,
+        )
         timed_func = timeout(self.timeout)(self._generate)
         return cast(
             bytes,

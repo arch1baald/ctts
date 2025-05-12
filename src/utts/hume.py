@@ -1,4 +1,5 @@
 import base64
+import logging
 from enum import Enum
 from typing import Any, Dict, Optional, Union, cast
 
@@ -8,6 +9,8 @@ from timeout_function_decorator import timeout
 
 from .base import ProviderClient
 from .utils import convert_to_enum
+
+logger = logging.getLogger(__name__)
 
 
 class Format(str, Enum):
@@ -65,6 +68,16 @@ class HumeProviderClient(ProviderClient):
         Returns:
             Audio data as bytes
         """
+        logger.debug(
+            "hume.generate(text=%s, description=%s, voice=%s, context_generation_id=%s, format=%s, num_generations=%s, acting_instructions=%s)",  # noqa: E501
+            text,
+            description,
+            voice,
+            context_generation_id,
+            format,
+            num_generations,
+            acting_instructions,
+        )
         timed_func = timeout(self.timeout)(self._generate)
         return cast(
             bytes,

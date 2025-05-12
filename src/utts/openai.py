@@ -1,3 +1,4 @@
+import logging
 from enum import Enum
 from typing import cast
 
@@ -5,6 +6,8 @@ from openai import OpenAI
 from timeout_function_decorator import timeout
 
 from .base import ProviderClient
+
+logger = logging.getLogger(__name__)
 
 
 class Voice(str, Enum):
@@ -48,6 +51,7 @@ class OpenAIClient(ProviderClient):
         Returns:
             Audio data as bytes
         """
+        logger.debug("openai.generate(text=%s, voice=%s, model=%s)", text, voice, model)
         timed_func = timeout(self.timeout)(self._generate)
         return cast(bytes, timed_func(text, voice, model))
 
