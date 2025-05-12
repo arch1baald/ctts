@@ -22,10 +22,52 @@ class UTTSClient:
         cartesia_api_key: str | None = None,
         timeout: float = DEFAULT_TIMEOUT,
     ) -> None:
-        self.openai = OpenAIClient(api_key=openai_api_key, timeout=timeout) if openai_api_key else None
-        self.elevenlabs = ElevenLabsClient(api_key=elevenlabs_api_key, timeout=timeout) if elevenlabs_api_key else None
-        self.kokoro = KokoroClient(api_key=replicate_api_key, timeout=timeout) if replicate_api_key else None
-        self.orpheus = OrpheusClient(api_key=replicate_api_key, timeout=timeout) if replicate_api_key else None
-        self.zyphra = ZyphraClient(api_key=zyphra_api_key, timeout=timeout) if zyphra_api_key else None
-        self.hume = HumeProviderClient(api_key=hume_api_key, timeout=timeout) if hume_api_key else None
-        self.cartesia = CartesiaClient(api_key=cartesia_api_key, timeout=timeout) if cartesia_api_key else None
+        self._openai = OpenAIClient(api_key=openai_api_key, timeout=timeout) if openai_api_key else None
+        self._elevenlabs = ElevenLabsClient(api_key=elevenlabs_api_key, timeout=timeout) if elevenlabs_api_key else None
+        self._kokoro = KokoroClient(api_key=replicate_api_key, timeout=timeout) if replicate_api_key else None
+        self._orpheus = OrpheusClient(api_key=replicate_api_key, timeout=timeout) if replicate_api_key else None
+        self._zyphra = ZyphraClient(api_key=zyphra_api_key, timeout=timeout) if zyphra_api_key else None
+        self._hume = HumeProviderClient(api_key=hume_api_key, timeout=timeout) if hume_api_key else None
+        self._cartesia = CartesiaClient(api_key=cartesia_api_key, timeout=timeout) if cartesia_api_key else None
+
+    @property
+    def openai(self) -> OpenAIClient:
+        if self._openai is None:
+            raise ValueError("OpenAI API key is not set")
+        return self._openai
+
+    @property
+    def elevenlabs(self) -> ElevenLabsClient:
+        if self._elevenlabs is None:
+            raise ValueError("ElevenLabs API key is not set")
+        return self._elevenlabs
+
+    @property
+    def kokoro(self) -> KokoroClient:
+        if self._kokoro is None:
+            raise ValueError("Replicate API key is not set")
+        return self._kokoro
+
+    @property
+    def orpheus(self) -> OrpheusClient:
+        if self._orpheus is None:
+            raise ValueError("Replicate API key is not set")
+        return self._orpheus
+
+    @property
+    def zyphra(self) -> ZyphraClient:
+        if self._zyphra is None:
+            raise ValueError("Zyphra API key is not set")
+        return self._zyphra
+
+    @property
+    def hume(self) -> HumeProviderClient:
+        if self._hume is None:
+            raise ValueError("Hume API key is not set")
+        return self._hume
+
+    @property
+    def cartesia(self) -> CartesiaClient:
+        if self._cartesia is None:
+            raise ValueError("Cartesia API key is not set")
+        return self._cartesia
