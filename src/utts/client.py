@@ -1,4 +1,5 @@
 from .elevenlabs import ElevenLabsClient
+from .hume import HumeProviderClient
 from .openai import OpenAIClient
 
 DEFAULT_TIMEOUT = 10
@@ -19,3 +20,5 @@ class UTTSClient:
     ) -> None:
         self.openai = OpenAIClient(api_key=openai_api_key, timeout=timeout) if openai_api_key else None
         self.elevenlabs = ElevenLabsClient(api_key=elevenlabs_api_key, timeout=timeout) if elevenlabs_api_key else None
+
+        self.hume = HumeProviderClient(api_key=hume_api_key, timeout=timeout) if hume_api_key else None
