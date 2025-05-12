@@ -1,6 +1,6 @@
 [project]
 name = "utts"
-version = "0.1.2"
+version = "0.1.3"
 description = "Universal interface to test and compare text-to-speech providers"
 readme = "README.md"
 authors = [
