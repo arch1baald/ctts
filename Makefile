@@ -24,6 +24,7 @@ test:
 # Install project dependencies
 .PHONY: install
 install:
+	$(UV) venv
 	$(UV) pip install .
 
 # Install project in development mode
