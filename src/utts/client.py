@@ -35,7 +35,7 @@ class UTTSClient:
     from utts import UTTSClient
 
     client = UTTSClient(
-        openai_api_key="your_openai_api_key",
+        elevenlabs_api_key="your_elevenlabs_api_key",
     )
     audio = client.elevenlabs.generate('Hello, world!')
     ```
